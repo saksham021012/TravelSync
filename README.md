@@ -58,17 +58,25 @@ npm start
 ## 📄 .env Example
 
 ```env
+MAIL_HOST=smtp.example.com
+MAIL_USER=your-email@example.com
+MAIL_PASS=your-email-password
+
 PORT=5000
-MONGO_URI=mongodb://localhost:27017/travelsync
-JWT_SECRET=your_jwt_secret
+MONGODB_URL=mongodb://localhost:27017/travelsync
 
-EMAIL_USER=youremail@example.com
-EMAIL_PASS=yourpassword
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-cloudinary-api-key
+CLOUDINARY_API_SECRET=your-cloudinary-api-secret
 
-AERODATABOX_API_KEY=your_key
-WEATHER_API_KEY=your_key
-NEWS_API_KEY=your_key
-GEOAPIFY_API_KEY=your_key
+JWT_SECRET=your_jwt_secret_key
+
+WEATHER_API_KEY=your_weather_api_key
+GNEWS_API_KEY=your_news_api_key
+# OPENROUTESERVICE_API_KEY=your_openrouteservice_api_key
+AERODATABOX_API_KEY=your_aerodatabox_api_key
+GEOAPIFY_API_KEY=your_geoapify_api_key
+
 ```
 
 ---
