@@ -1,0 +1,84 @@
+ 
+
+# TravelSync Backend
+
+**TravelSync** is a smart travel assistant backend built with Node.js, Express, and MongoDB. It helps travelers by providing real-time alerts and travel insights including flights, weather, news, and emergency services—all powered by intelligent automation and external APIs.
+
+---
+
+## 🚀 Features
+
+- 🔐 **User Authentication** with OTP verification via email
+- 🛫 **Trip Management** (CRUD) with automatic flight segment extraction
+- 🌦️ **Weather Alerts** based on destination
+- ✈️ **Flight Status Monitoring** using real-time airline data
+- 📰 **Localized News Alerts** from trusted sources
+- 🚨 **Disruption & Emergency Alerts**
+- 🧭 **Local Emergency Services Info** (police stations, hospitals, embassies) via Geoapify
+- 🌍 **Timezone-aware Travel Info** (local + UTC times)
+- 📜 **History of Alerts & Disruptions**
+
+---
+
+## 🧱 Tech Stack
+
+- **Backend:** Node.js, Express
+- **Database:** MongoDB (Mongoose)
+- **External APIs:**
+  - AeroDataBox (Flight status & routes)
+  - WeatherAPI.com (Weather updates)
+  - NewsAPI (News alerts)
+  - Geoapify (Emergency services, location-based places)
+- **Other Tools:**
+  - Nodemailer (OTP email service)
+  - JWT (Authentication)
+  - Postman (API testing/documentation)
+
+---
+
+## ⚙️ Setup Instructions
+
+```bash
+# Clone the repo
+git clone https://github.com/YOUR_USERNAME/travelsync-backend.git
+cd travelsync-backend
+
+# Install dependencies
+npm install
+
+# Create .env file
+cp .env.example .env
+
+# Start the server
+npm start
+```
+
+---
+
+## 📄 .env Example
+
+```env
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/travelsync
+JWT_SECRET=your_jwt_secret
+
+EMAIL_USER=youremail@example.com
+EMAIL_PASS=yourpassword
+
+AERODATABOX_API_KEY=your_key
+WEATHER_API_KEY=your_key
+NEWS_API_KEY=your_key
+GEOAPIFY_API_KEY=your_key
+```
+
+---
+
+## 🔍 Future Enhancements
+
+- [ ] Push notification support
+- [ ] Admin dashboard for managing trips and alerts
+- [ ] Integration of interactive maps for visualizing emergency services and travel points
+
+---
+
+
