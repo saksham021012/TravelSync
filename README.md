@@ -83,8 +83,8 @@ GEOAPIFY_API_KEY=your_geoapify_api_key
 ## 🔍 Future Enhancements
 
 - [ ] Push notification support
-- [ ] Admin dashboard for managing trips and alerts
 - [ ] Integration of interactive maps for visualizing emergency services and travel points
+- [ ] Frontend integration using React for user dashboard, trip management, and real-time alerts display
 
 ---
 
