@@ -5,7 +5,7 @@ const Otp = require("../models/Otp");
 const otpGenerator = require("otp-generator")
 
 
-//send otp
+//SEND OTP
 
 exports.sendOTP = async (req, res) => {
 
@@ -109,7 +109,7 @@ exports.register = async (req, res) => {
         if(recentOtp.length === 0){
             //otp not found 
             return res.status(400).json({
-                succesS: false,
+                success: false,
                 message: "OTP not found"
             })
         }

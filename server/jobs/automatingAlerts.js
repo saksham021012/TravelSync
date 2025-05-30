@@ -48,3 +48,4 @@ cron.schedule('0 * * * *', async () => {
 
   console.log('Flight segment check completed.');
 });
+  
