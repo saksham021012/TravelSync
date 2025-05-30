@@ -73,7 +73,6 @@ JWT_SECRET=your_jwt_secret_key
 
 WEATHER_API_KEY=your_weather_api_key
 GNEWS_API_KEY=your_news_api_key
-# OPENROUTESERVICE_API_KEY=your_openrouteservice_api_key
 AERODATABOX_API_KEY=your_aerodatabox_api_key
 GEOAPIFY_API_KEY=your_geoapify_api_key
 
