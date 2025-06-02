@@ -42,7 +42,7 @@ const tripSchema = new mongoose.Schema({
         city: String,
         country: String,
     },
-    locations: [    
+    locations: [
         {
             city: String,
             country: String,
@@ -71,6 +71,7 @@ const tripSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Alert',
     }],
+
 }, {
     timestamps: true,
 });

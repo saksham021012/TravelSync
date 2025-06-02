@@ -132,8 +132,6 @@ exports.createTrip = async (req, res) => {
 };
 
 
-
-
 exports.createAlertsForTrip = async (req, res) => {
   try {
     console.log("req.user is: ", req.user);

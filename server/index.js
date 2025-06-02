@@ -39,6 +39,7 @@ const auth = require("./routes/auth");
 const emergency = require("./routes/emergency");
 const flightSegment = require("./routes/flightSegment");
 const trip = require("./routes/trip");
+const itineraryRoutes = require('./routes/itinerary');
 
 // Use routes
 app.use("/api/auth", auth);
@@ -46,6 +47,8 @@ app.use("/api/trips", trip);
 app.use("/api/alerts", alerts);
 app.use("/api/emergency", emergency);
 app.use("/api/flightSegment", flightSegment);
+app.use('/api/itineraries', itineraryRoutes);
+
 
 //default route
 
