@@ -10,6 +10,10 @@ const { cloudinaryConnect } = require("./config/cloudinary")
 const fileUpload = require("express-fileupload")
 const PORT = process.env.PORT || 4000
 
+
+//cors
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+
 //database connect
 connectDB();
 

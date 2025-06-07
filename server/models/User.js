@@ -18,6 +18,9 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     unique: true,
   },
+  token: {
+    type: String,
+  },
   password: {
     type: String,
     required: true,
