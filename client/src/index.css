@@ -1,1 +1,74 @@
 @import "tailwindcss";
+
+html {
+  scroll-behavior: smooth;
+}
+
+
+@keyframes floatAround {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(100px, -50px) rotate(90deg);
+  }
+  50% {
+    transform: translate(50px, -100px) rotate(180deg);
+  }
+  75% {
+    transform: translate(-50px, -50px) rotate(270deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(360deg);
+  }
+}
+
+.animate-floatAround {
+  animation: floatAround 15s linear infinite;
+}
+
+@keyframes glow {
+  from {
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+  }
+  to {
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.6));
+  }
+}
+
+/* Utility class to apply the glow animation */
+.animate-glow {
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulseCustom {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.animate-pulseCustom {
+  animation: pulseCustom 2s infinite;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover::before {
+  transform: translateX(0);
+}
+
+
+
