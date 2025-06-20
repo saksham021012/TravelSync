@@ -6,7 +6,6 @@ const reset = require("../controllers/ResetPassword")
 
 const {register,
     login,
-    logout,
     sendOTP
 } = auth;
 
@@ -16,7 +15,6 @@ const {resetPassword,
 
 router.post("/register", register);
 router.post("/login", login);
-router.post("/logout", logout); 
 router.post("/sendOtp", sendOTP)
 
 

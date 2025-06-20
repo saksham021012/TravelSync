@@ -1,10 +1,12 @@
-const BASE_URL = process.env.REACT_APP_BASE_URL;
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export const authEndpoints = {
-    REGISTER_API: BASE_URL + "/auth/register",
+    SIGNUP_API: BASE_URL + "/auth/register",
     LOGIN_API: BASE_URL + "/auth/login",
+    SENDOTP_API: BASE_URL + "/auth/sendOtp",
+    RESETPASSTOKEN_API: BASE_URL + "/auth/reset-password-token",
+    RESETPASSWORD_API: BASE_URL + "/auth/reset-password",
     LOGOUT_API: BASE_URL + "/auth/logout",
-    SEND_OTP_API: BASE_URL + "/auth/sendOtp",
 };
 
 // ========== TRIP ROUTES ==========

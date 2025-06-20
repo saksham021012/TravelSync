@@ -61,7 +61,6 @@ exports.sendOTP = async (req, res) => {
             .json({
                 success: true,
                 message: "OTP sent successfully",
-                otp,
             })
 
     } catch (error) {
@@ -227,7 +226,3 @@ exports.login = async (req, res) => {
     }
 }
 
-// LOGOUT
-exports.logout = (req, res) => {
-    res.clearCookie("token").status(200).json({ message: "Logged out successfully" });
-};

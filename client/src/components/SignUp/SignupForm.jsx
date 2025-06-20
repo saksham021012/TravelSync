@@ -1,17 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { sendOtp, signUp } from '../../services/Operations/authApi';
+import { setSignupData } from '../../slices/authSlice';
 
 
 const SignUpForm = () => {
 
     const navigate = useNavigate();
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    const dispatch = useDispatch();
+    const [formData, setFormData] = useState({
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: ''
+    });
 
+    const handleOnChange = (e) => {
+        setFormData((prev) => ({
+            ...prev,
+            [e.target.id]: e.target.value,
+        }));
     };
 
-    const handleGoogleSignUp = () => {
-        alert('Google Sign-up integration would be implemented here.');
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const signupData = {
+            ...formData
+        }
+        dispatch(setSignupData(signupData));
+        dispatch(sendOtp(formData.email, navigate));
     };
 
     const handleLoginRedirect = (e) => {
@@ -27,32 +45,32 @@ const SignUpForm = () => {
                     <p className="text-base sm:text-lg text-gray-600">Join TravelSync in seconds</p>
                 </div>
 
-                
-
                 <div className="text-center my-6 relative text-gray-400 before:content-[''] before:absolute before:top-1/2 before:left-0 before:right-0 before:h-px before:bg-gray-200">
                     <span className="bg-white px-4 text-sm sm:text-base"></span>
                 </div>
 
                 <form id="signupForm" onSubmit={handleSubmit}>
                     <div className="mb-4">
-                        <label htmlFor="firstname" className="block mb-2 text-gray-800 font-medium text-sm sm:text-base">
+                        <label htmlFor="firstName" className="block mb-2 text-gray-800 font-medium text-sm sm:text-base">
                             First Name
                         </label>
                         <input
                             type="text"
-                            id="firstname"
+                            id="firstName"
+                            onChange={handleOnChange}
                             className="w-full py-3 px-4 border-2 border-gray-200 rounded-xl text-base sm:text-lg bg-gray-50 focus:outline-none focus:border-indigo-500 focus:bg-white focus:shadow-md"
                             required
                         />
                     </div>
 
                     <div className="mb-4">
-                        <label htmlFor="lastname" className="block mb-2 text-gray-800 font-medium text-sm sm:text-base">
+                        <label htmlFor="lastName" className="block mb-2 text-gray-800 font-medium text-sm sm:text-base">
                             Last Name
                         </label>
                         <input
                             type="text"
-                            id="lastname"
+                            id="lastName"
+                            onChange={handleOnChange}
                             className="w-full py-3 px-4 border-2 border-gray-200 rounded-xl text-base sm:text-lg bg-gray-50 focus:outline-none focus:border-indigo-500 focus:bg-white focus:shadow-md"
                             required
                         />
@@ -65,6 +83,7 @@ const SignUpForm = () => {
                         <input
                             type="email"
                             id="email"
+                            onChange={handleOnChange}
                             className="w-full py-3 px-4 border-2 border-gray-200 rounded-xl text-base sm:text-lg bg-gray-50 focus:outline-none focus:border-indigo-500 focus:bg-white focus:shadow-md"
                             required
                         />
@@ -77,6 +96,7 @@ const SignUpForm = () => {
                         <input
                             type="password"
                             id="password"
+                            onChange={handleOnChange}
                             className="w-full py-3 px-4 border-2 border-gray-200 rounded-xl text-base sm:text-lg bg-gray-50 focus:outline-none focus:border-indigo-500 focus:bg-white focus:shadow-md"
                             required
                         />

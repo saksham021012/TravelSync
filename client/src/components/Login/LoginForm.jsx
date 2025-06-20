@@ -1,29 +1,46 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from "react-redux"
+import { login } from '../../services/Operations/authApi';
+
 
 
 const LoginForm = () => {
-  const handleSubmit = (e) => {
-    e.preventDefault();
-  }
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const handleGoogleSignIn = () => {
-    alert('Google Sign-in integration would be implemented here.');
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+
+  const {email, password} = formData;
+
+  const handleOnChange = (e) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [e.target.name]: e.target.value,
+    }))
+  }
+
+  const handleOnSubmit = (e) => {
+    e.preventDefault();
+    dispatch(login(email, password, navigate));
   };
 
   const handleForgotPassword = (e) => {
     e.preventDefault();
-    alert('Password reset link would be sent to your email.');
+    navigate('/forgot-password');
   };
 
   const handleSignUp = (e) => {
-    navigate('/signup')
+    e.preventDefault();
+    navigate('/signup');
   };
 
   return (
-    <div className="flex-2/3 bg-white flex flex-col justify-center items-center p-8 relative z-20 shadow-lg md:shadow-2xl min-h-screen md:min-h-auto mt-3">
+    <div className="flex-2/3 bg-white flex flex-col justify-center items-center p-8 relative z-20 shadow-lg md:shadow-2xl min-h-screen md:min-h-auto mt-3 ">
       <div className="w-full max-w-md animate-fadeInUp px-4 sm:px-6 md:px-0">
 
 
@@ -32,13 +49,13 @@ const LoginForm = () => {
           <p className="text-base sm:text-lg text-gray-600">Please enter your details</p>
         </div>
 
-        
+
 
         <div className="text-center my-6 relative text-gray-400 before:content-[''] before:absolute before:top-1/2 before:left-0 before:right-0 before:h-px before:bg-gray-200">
           <span className="bg-white px-4 text-sm sm:text-base"></span>
         </div>
 
-        <form id="loginForm" onSubmit={handleSubmit}>
+        <form id="loginForm" onSubmit={handleOnSubmit}>
           <div className="mb-6">
             <label htmlFor="email" className="block mb-2 text-gray-800 font-medium text-sm sm:text-base">
               Email address
@@ -46,6 +63,9 @@ const LoginForm = () => {
             <input
               type="email"
               id="email"
+              name="email"
+              value={email}
+              onChange={handleOnChange}
               className="w-full py-3 px-4 border-2 border-gray-200 rounded-xl text-base sm:text-lg transition-all duration-300 ease-in-out bg-gray-50 focus:outline-none focus:border-indigo-500 focus:bg-white focus:shadow-md"
               required
             />
@@ -58,7 +78,11 @@ const LoginForm = () => {
             <input
               type="password"
               id="password"
+              name = "password"
+              value = {password}
+              onChange={handleOnChange}
               className="w-full py-3 px-4 border-2 border-gray-200 rounded-xl text-base sm:text-lg transition-all duration-300 ease-in-out bg-gray-50 focus:outline-none focus:border-indigo-500 focus:bg-white focus:shadow-md"
+              
               required
             />
           </div>

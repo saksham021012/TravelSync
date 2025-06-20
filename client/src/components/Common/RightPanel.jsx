@@ -64,9 +64,9 @@ const RightPanel = () => {
                 <rect x="185" y="118" width="10" height="22" fill="#8B4513"/>
                 <rect x="185" y="140" width="15" height="8" fill="#2C3E50"/>
                 {/* Glasses */}
-                <circle cx="185" cy="58" r="8" fill="none" stroke="#2C3E50" stroke-width="2"/>
-                <circle cx="195" cy="58" r="8" fill="none" stroke="#2C3E50" stroke-width="2"/>
-                <line x1="193" y1="58" x2="187" y2="58" stroke="#2C3E50" stroke-width="2"/>
+                <circle cx="185" cy="58" r="8" fill="none" stroke="#2C3E50" strokeWidth="2"/>
+                <circle cx="195" cy="58" r="8" fill="none" stroke="#2C3E50" strokeWidth="2"/>
+                <line x1="193" y1="58" x2="187" y2="58" stroke="#2C3E50" strokeWidth="2"/>
                 {/* Backpack */}
                 <rect x="165" y="80" width="18" height="28" rx="5" fill="#8E44AD"/>
             </g>
@@ -82,7 +82,7 @@ const RightPanel = () => {
                 <rect x="230" y="90" width="15" height="10" rx="2" fill="#34495E"/>
                 <circle cx="237" cy="95" r="4" fill="#95A5A6"/>
                 {/* Selfie stick */}
-                <line x1="275" y1="85" x2="295" y2="75" stroke="#BDC3C7" stroke-width="3"/>
+                <line x1="275" y1="85" x2="295" y2="75" stroke="#BDC3C7" strokeWidth="3"/>
                 <rect x="293" y="72" width="8" height="6" fill="#2C3E50"/>
             </g>
         </g>
