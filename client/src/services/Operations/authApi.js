@@ -91,9 +91,10 @@ export const login = (email, password, navigate) => {
       }
       toast.success("Login Successful");
       dispatch(setUser(response.data.user));
+      dispatch(setToken(response.data.token));
       localStorage.setItem("token", JSON.stringify(response.data.token))
       localStorage.setItem("user", JSON.stringify(response.data.user))
-      // navigate("/my-profile")
+      navigate("/my-profile")
     } catch (error) {
       console.log("LOGIN API ERROR......", error)
       toast.error("Login Failed");
