@@ -232,7 +232,6 @@ exports.createAlertsForTrip = async (req, res) => {
 // Get all trips for a user
 exports.getUserTrips = async (req, res) => {
   try {
-    console.log("Fetching trips for user:", req.user.userId);
     const trips = await Trip.find({ user: req.user.userId }).sort({ startDate: 1 });
     res.status(200).json({ message: "User trips fetched", success: true, trips });
   } catch (error) {

@@ -1,12 +1,12 @@
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export const authEndpoints = {
-    SIGNUP_API: BASE_URL + "/auth/register",
-    LOGIN_API: BASE_URL + "/auth/login",
-    SENDOTP_API: BASE_URL + "/auth/sendOtp",
-    RESETPASSTOKEN_API: BASE_URL + "/auth/reset-password-token",
-    RESETPASSWORD_API: BASE_URL + "/auth/reset-password",
-    LOGOUT_API: BASE_URL + "/auth/logout",
+  SIGNUP_API: BASE_URL + "/auth/register",
+  LOGIN_API: BASE_URL + "/auth/login",
+  SENDOTP_API: BASE_URL + "/auth/sendOtp",
+  RESETPASSTOKEN_API: BASE_URL + "/auth/reset-password-token",
+  RESETPASSWORD_API: BASE_URL + "/auth/reset-password",
+  LOGOUT_API: BASE_URL + "/auth/logout",
 };
 
 // ========== TRIP ROUTES ==========
@@ -31,8 +31,8 @@ export const tripEndpoints = {
 
 // ========== FLIGHT SEGMENTS ==========
 export const flightSegmentEndpoints = {
-    GET_SEGMENTS_BY_TRIP: BASE_URL + "/segments",
-    UPDATE_SEGMENT_API: BASE_URL + "/segments",
+  GET_SEGMENTS_BY_TRIP: BASE_URL + "/segments",
+  UPDATE_SEGMENT_API: BASE_URL + "/segments",
 };
 
 // // ========== ALERTS ==========
@@ -63,12 +63,16 @@ export const itineraryEndpoints = {
   CREATE_ITINERARY_API: `${BASE_URL}/itineraries`,
   GET_ITINERARIES_BY_TRIP: (tripId) => `${BASE_URL}/itineraries/trip/${tripId}`,
   UPDATE_ITINERARY_API: (id) => `${BASE_URL}/itineraries/${id}`,
-  DELETE_ITINERARY_API: (id) => `${BASE_URL}/itineraries/${id}`,
+ 
+  DELETE_ITINERARY_ITEM: `${BASE_URL}/itineraries/item`, // updated
+
+  // DELETE_ITINERARY_API: (id) => `${BASE_URL}/itineraries/${id}`,
+
   GENERATE_SUGGESTIONS_API: `${BASE_URL}/itineraries/ai/suggestions`,
 };
 
 
 // ========== EMERGENCY SERVICES ==========
 export const emergencyEndpoints = {
-    GET_NEARBY_EMERGENCIES_API: BASE_URL + "/emergency/nearby",
+  GET_NEARBY_EMERGENCIES_API: BASE_URL + "/emergency/nearby",
 };

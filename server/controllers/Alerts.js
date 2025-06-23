@@ -13,7 +13,7 @@ exports.getAlertsByTrip = async (req, res) => {
   }
 
   try {
-    const alerts = await Alert.find({ trip: tripId, user: userId }).sort({ createdAt: -1 });
+    const alerts = await Alert.find({ trip: tripId, user: userId }).sort({ createdAt: -1 }) .populate("trip", "title");
     res.status(200).json({ success: true, alerts });
   } catch (error) {
     console.error("Error fetching alerts by trip:", error);

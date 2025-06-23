@@ -12,6 +12,7 @@ export const apiConnector = async (method, url, bodyData = null, headers = {}, p
             params,
             withCredentials: true, 
         });
+        
         return response;
     } catch (error) {
         console.error("API Error:", {

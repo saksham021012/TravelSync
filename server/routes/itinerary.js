@@ -4,7 +4,8 @@ const {
   createItinerary,
   getItinerariesByTrip,
   updateItinerary,
-  deleteItinerary,
+  // deleteItinerary,
+  deleteItineraryItem,
   generateSuggestions
 } = require('../controllers/Itinerary');
 
@@ -18,9 +19,13 @@ router.get('/trip/:tripId', getItinerariesByTrip);
 router.put('/:id', updateItinerary);
 
 // DELETE /api/itineraries/:id
-router.delete('/:id', deleteItinerary);
+// router.delete('/:id', deleteItinerary);
 
 // POST /api/itineraries/ai/suggestions
 router.post('/ai/suggestions', generateSuggestions); 
+
+//DELETE /api/itineraries/items/:id
+
+router.delete('/item', deleteItineraryItem);
 
 module.exports = router;

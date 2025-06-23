@@ -1,36 +1,46 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React from "react";
+import { NavLink } from "react-router-dom";
+import {
+  Grid3X3,
+  Mountain,
+  Calendar,
+  Bell,
+  Settings,
+  LogOut,
+} from "lucide-react";
 
 const Sidebar = () => {
   const links = [
-    { label: 'Dashboard', href: '/my-profile' },
-    { label: 'Trips', href: '/my-trips' },
-    { label: 'Itineraries', href: '/my-itineraries' },
-    { label: 'Alerts', href: '/my-alerts' },
-    { label: 'Settings', href: '/settings' },
-    { label: 'Logout', href: '/logout' }, // You can hook this to a logout handler
+    { label: "Dashboard", href: "/my-profile", icon: <Grid3X3 className="w-4 h-4 mr-3 opacity-70" /> },
+    { label: "Trips", href: "/my-trips", icon: <Mountain className="w-4 h-4 mr-3 opacity-70" /> },
+    { label: "Itineraries", href: "/my-itineraries", icon: <Calendar className="w-4 h-4 mr-3" /> },
+    { label: "Alerts", href: "/my-alerts", icon: <Bell className="w-4 h-4 mr-3 opacity-70" /> },
+    { label: "Settings", href: "/settings", icon: <Settings className="w-4 h-4 mr-3 opacity-70" /> },
+    { label: "Logout", href: "/logout", icon: <LogOut className="w-4 h-4 mr-3 opacity-70" /> },
   ];
 
   return (
-    <nav className="w-72 bg-white shadow-lg p-8 fixed h-full overflow-y-auto z-50">
-      <ul className="space-y-2">
+    <nav className="w-60 bg-white shadow-sm fixed h-full transition-transform duration-300 z-50">
+      
+
+      <div className="py-2">
         {links.map((link, index) => (
-          <li key={index}>
-            <NavLink
-              to={link.href}
-              className={({ isActive }) =>
-                `block px-6 py-3 rounded-xl font-medium transition-all relative overflow-hidden ${
-                  isActive
-                    ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg translate-x-1'
-                    : 'text-gray-500 hover:text-indigo-500 hover:translate-x-1 hover:bg-indigo-50'
-                }`
-              }
-            >
-              {link.label}
-            </NavLink>
-          </li>
+          <NavLink
+            key={index}
+            to={link.href}
+            className={({ isActive }) =>
+              `flex items-center px-5 py-4 text-sm font-medium border-l-4 transition-all duration-200 ${
+                isActive
+                  ? "text-purple-600 bg-slate-50 border-purple-600"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:translate-x-1 border-transparent"
+              }`
+            }
+          >
+            {link.icon}
+            <span>{link.label}</span>
+          </NavLink>
         ))}
-      </ul>
+      </div>
     </nav>
   );
 };

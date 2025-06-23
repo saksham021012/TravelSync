@@ -20,7 +20,7 @@ const itinerarySchema = new mongoose.Schema({
     lng: Number,
     type: {
       type: String,
-      enum: ['activity', 'hotel', 'transport', 'food', 'custom'],
+      enum: ['Activity','Hotel','Transport','Food','Custom','activity', 'hotel', 'transport', 'food', 'custom'],
       default: 'custom'
     }
   }]

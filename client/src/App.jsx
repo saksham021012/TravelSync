@@ -8,12 +8,14 @@ import ForgotPassword from './pages/ForgotPassword';
 import VerifyEmail from './pages/VerifyEmail';
 import Dashboard from './pages/Dashboard';
 import TripPage from './pages/TripPage'
+import ItinerariesPage from './pages/ItinerariesPage';
+import AlertsPage from './pages/AlertsPage';
 
 
 function App() {
   return (
     <Router>
-      <NavBar/>
+      <NavBar />
       <Routes>
         <Route
           path="/"
@@ -50,6 +52,15 @@ function App() {
           path="/my-trips"
           element={
             <TripPage />
+          }
+        /><Route
+         path="/my-itineraries" 
+         element={<ItinerariesPage />} 
+         />
+        <Route
+          path="/my-alerts"
+          element={
+            <AlertsPage />
           }
         />
       </Routes>
