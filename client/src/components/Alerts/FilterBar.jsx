@@ -5,7 +5,6 @@ const alertTypes = [
   { value: "flight", label: "Flight Updates" },
   { value: "weather", label: "Weather" },
   { value: "news", label: "News" },
-  { value: "emergency", label: "Emergency" },
 ];
 
 const FilterBar = ({
@@ -26,7 +25,6 @@ const FilterBar = ({
           value={filteredTripId}
           onChange={(e) => setFilteredTripId(e.target.value)}
         >
-          <option value="all">All Trips</option>
           {trips.map((trip) => (
             <option
               key={trip._id}

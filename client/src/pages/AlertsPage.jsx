@@ -6,63 +6,48 @@ import AlertCard from "../components/Alerts/AlertCard";
 import EmptyState from "../components/Alerts/EmptyState";
 import { getAllTrips } from "../services/Operations/trip";
 import { getAlertsByTrip } from "../services/Operations/alert";
+import {createTripAlerts} from "../services/Operations/trip"
+import AlertSpinner from "../components/Alerts/AlertSpinner";
 
 const AlertsPage = () => {
   const dispatch = useDispatch();
   const { alerts, loading } = useSelector((state) => state.alert);
-  console.log("Redux alerts:", alerts);
   const { trips } = useSelector((state) => state.trip);
 
-  const [filteredTripId, setFilteredTripId] = useState("all");
+  const [filteredTripId, setFilteredTripId] = useState("");
   const [filteredType, setFilteredType] = useState("all");
+  const [alertsLoading, setAlertsLoading] = useState(false);
 
+  // Load all trips on mount
   useEffect(() => {
     dispatch(getAllTrips());
   }, [dispatch]);
 
+  // Auto-select first trip once trips load
   useEffect(() => {
-    if (filteredTripId === "all") {
-      trips.forEach((trip) => {
-        dispatch(getAlertsByTrip(trip._id));
-      });
-    } else {
-      dispatch(getAlertsByTrip(filteredTripId));
+    if (trips.length > 0 && !filteredTripId) {
+      setFilteredTripId(trips[0]._id);
     }
-  }, [filteredTripId, dispatch, trips]);
+  }, [trips, filteredTripId]);
 
-  const alertsByTrip = trips.reduce((acc, trip) => {
-    acc[trip._id] = alerts.filter(
-      (alert) =>
-        (alert.trip?._id?.toString() === trip._id?.toString()) &&
-        (filteredType === "all" || alert.type === filteredType)
-    );
-    return acc;
-  }, {});
+  // Fetch alerts whenever filteredTripId changes
+  useEffect(() => {
+    const fetchAlerts = async () => {
+      if (!filteredTripId) return;
+      setAlertsLoading(true);
+      await dispatch(createTripAlerts(filteredTripId));
+      await dispatch(getAlertsByTrip(filteredTripId));
+      setAlertsLoading(false);
+    };
 
+    fetchAlerts();
+  }, [filteredTripId, dispatch]);
 
-  const hasAlerts = trips.some(
-    (trip) => (alertsByTrip[trip._id] || []).length > 0
+  const filteredAlerts = alerts.filter(
+    (alert) =>
+      alert.trip?._id === filteredTripId &&
+      (filteredType === "all" || alert.type === filteredType)
   );
-
-  const renderTripAlerts = () => {
-    return trips.map((trip) => {
-      const filteredAlerts = alertsByTrip[trip._id];
-      if (!filteredAlerts || filteredAlerts.length === 0) return null;
-
-      return (
-        <div key={trip._id}>
-          <h2 className="text-xl font-semibold text-gray-700 mb-4">
-            {trip.title || "Unnamed Trip"}
-          </h2>
-          <div className="space-y-4">
-            {filteredAlerts.map((alert) => (
-              <AlertCard key={alert._id} alert={alert} />
-            ))}
-          </div>
-        </div>
-      );
-    });
-  };
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-slate-100 to-slate-200">
@@ -79,7 +64,25 @@ const AlertsPage = () => {
         />
 
         <div className="space-y-12 mt-8">
-          {hasAlerts ? renderTripAlerts() : !loading && <EmptyState />}
+          {alertsLoading ? (
+            <AlertSpinner />
+          ) : filteredAlerts.length > 0 ? (
+            <div>
+              <h2 className="text-xl font-semibold text-gray-700 mb-4">
+                {
+                  trips.find((t) => t._id === filteredTripId)?.title ||
+                  "Unnamed Trip"
+                }
+              </h2>
+              <div className="space-y-4">
+                {filteredAlerts.map((alert) => (
+                  <AlertCard key={alert._id} alert={alert} />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <EmptyState />
+          )}
         </div>
       </main>
     </div>

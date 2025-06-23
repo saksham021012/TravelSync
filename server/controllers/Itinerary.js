@@ -31,7 +31,7 @@ const createItinerary = async (req, res) => {
 // Get all itineraries for a trip
 const getItinerariesByTrip = async (req, res) => {
   try {
-    const { tripId } = req.body;
+    const { tripId } = req.params;
 
     const itineraries = await Itinerary.find({ tripId })
       .sort('date')

@@ -141,7 +141,7 @@ exports.createAlertsForTrip = async (req, res) => {
     }
 
     // 1. Optionally delete old alerts linked to this trip (if you want a fresh start)
-    // await Alert.deleteMany({ trip: trip._id });
+    await Alert.deleteMany({ trip: trip._id });
 
     // 2. Clear the alerts array in the trip document
     await Trip.findByIdAndUpdate(trip._id, { $set: { alerts: [] } });
@@ -153,12 +153,16 @@ exports.createAlertsForTrip = async (req, res) => {
 
     // Generate weather and news alerts per location sequentially to aggregate alerts
     for (const location of locations) {
+      if (!location.city) {
+        console.warn("Skipping location without city:", location);
+        continue;
+      }
       const weatherAlerts = await generateAlert({
         user: req.user.userId,
         tripId: trip._id,
         type: 'weather',
         sentVia: 'none',
-        location: location.city,
+        location: location?.city,
       });
 
       const newsAlerts = await generateAlert({
@@ -198,19 +202,19 @@ exports.createAlertsForTrip = async (req, res) => {
     }
 
     // Send one email with all alerts
-    if (allCreatedAlerts.length > 0) {
-      const userDoc = await User.findById(req.user.userId);
-      try {
-        await mailSender(
-          userDoc.email,
-          "Your TravelSync Trip Alerts",
-          alertSummaryTemplate(allCreatedAlerts)
-        );
-        console.log(`Alert email sent to ${userDoc.email}`);
-      } catch (emailErr) {
-        console.error("Error sending consolidated email:", emailErr.message);
-      }
-    }
+    // if (allCreatedAlerts.length > 0) {
+    //   const userDoc = await User.findById(req.user.userId);
+    //   try {
+    //     await mailSender(
+    //       userDoc.email,
+    //       "Your TravelSync Trip Alerts",
+    //       alertSummaryTemplate(allCreatedAlerts)
+    //     );
+    //     console.log(`Alert email sent to ${userDoc.email}`);
+    //   } catch (emailErr) {
+    //     console.error("Error sending consolidated email:", emailErr.message);
+    //   }
+    // }
 
     res.status(200).json({
       success: true,

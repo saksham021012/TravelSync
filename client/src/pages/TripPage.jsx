@@ -59,12 +59,15 @@ const Trips = () => {
         {loading ? (
           <p className="text-gray-500">Loading trips...</p>
         ) : filteredTrips.length > 0 ? (
+          
+          
           <div className="flex flex-col gap-6">
             {filteredTrips.map((trip, index) => (
               <div
                 key={trip._id}
-                className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition cursor-pointer transform hover:-translate-y-1"
+                className="group bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition cursor-pointer transform hover:-translate-y-1 relative overflow-hidden"
               >
+                <span className="absolute top-0 left-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-600 w-0 group-hover:w-full transition-all duration-400 rounded-t-xl" />
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="text-xl font-bold text-gray-900 mb-1">{trip.title}</h3>

@@ -29,10 +29,11 @@ const alertSchema = new mongoose.Schema({
         enum: ['email', 'push', 'none'],
         default: 'email',
     },
+    emailSent: { type: Boolean, default: false },
     createdAt: {
         type: Date,
         default: Date.now,
     },
-});
+},{ timestamps: true });
 
 module.exports = mongoose.model('Alert', alertSchema);

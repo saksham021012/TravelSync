@@ -5,10 +5,8 @@ if (!API_KEY) {
   throw new Error("AERODATABOX_API_KEY is not defined");
 }
 
-// Utility function to get flight details with timezone-aware info
 const getFlightDetails = async (flightNumber, departureDate) => {
   const url = `https://aerodatabox.p.rapidapi.com/flights/number/${flightNumber}/${departureDate}`;
-
   const options = {
     headers: {
       'X-RapidAPI-Key': API_KEY,
@@ -23,9 +21,7 @@ const getFlightDetails = async (flightNumber, departureDate) => {
       return null;
     }
 
-    const flight = response.data[0];  // pick first departure
-    console.log("Response of flight api: ", flight)
-
+    const flight = response.data[0];
     if (!flight) return null;
 
     return {
@@ -35,24 +31,30 @@ const getFlightDetails = async (flightNumber, departureDate) => {
 
       departureAirport: flight.departure?.airport?.name,
       departureIATA: flight.departure?.airport?.iata,
-      scheduledDeparture: flight.departure?.scheduledTime.local,
-      // actualDeparture: flight.departure?.predictedTime.local,
-      scheduledDepartureUTC: flight.departure?.scheduledTime.utc,
-      // actualDepartureUTC: flight.departure?.predictedTime.utc,
-      departureTimezone: flight.departure?.timezone,
+      departureTimezone: flight.departure?.airport?.timeZone,
+      scheduledDeparture: flight.departure?.scheduledTime?.local,
+      scheduledDepartureUTC: flight.departure?.scheduledTime?.utc,
+      revisedDeparture: flight.departure?.revisedTime?.local,
+      revisedDepartureUTC: flight.departure?.revisedTime?.utc,
+      runwayDeparture: flight.departure?.runwayTime?.local,
+      runwayDepartureUTC: flight.departure?.runwayTime?.utc,
 
       arrivalAirport: flight.arrival?.airport?.name,
       arrivalIATA: flight.arrival?.airport?.iata,
-      scheduledArrival: flight.arrival?.scheduledTime.local,
-      actualArrival: flight.arrival?.predictedTime.local,
-      scheduledArrivalUTC: flight.arrival?.scheduledTime.utc,
-      actualArrivalUTC: flight.arrival?.predictedTime.utc,
-      arrivalTimezone: flight.arrival?.timezone,
+      arrivalTimezone: flight.arrival?.airport?.timeZone,
+      scheduledArrival: flight.arrival?.scheduledTime?.local,
+      scheduledArrivalUTC: flight.arrival?.scheduledTime?.utc,
+      revisedArrival: flight.arrival?.revisedTime?.local,
+      revisedArrivalUTC: flight.arrival?.revisedTime?.utc,
+      runwayArrival: flight.arrival?.runwayTime?.local,
+      runwayArrivalUTC: flight.arrival?.runwayTime?.utc,
 
       status: flight.status,
+      aircraftModel: flight.aircraft?.model,
+      aircraftReg: flight.aircraft?.reg,
     };
   } catch (error) {
-    console.error('Error fetching flight data:', error);
+    console.error('Error fetching flight data:', error.message);
     throw new Error(`Could not fetch flight details: ${error.message}`);
   }
 };
