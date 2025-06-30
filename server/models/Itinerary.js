@@ -16,6 +16,7 @@ const itinerarySchema = new mongoose.Schema({
     location: String,
     startTime: Date,
     endTime: Date,
+    time: String,
     lat: Number,
     lng: Number,
     type: {

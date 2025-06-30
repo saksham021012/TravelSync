@@ -58,31 +58,70 @@ const getItinerariesByTrip = async (req, res) => {
 
 
 // Update an itinerary
-const updateItinerary = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updateData = { ...req.body };
+// const updateItinerary = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const updateData = { ...req.body };
 
-    if (updateData.items) {
-      if (!Array.isArray(updateData.items)) {
-        return res.status(400).json({ message: 'Items must be an array' });
-      }
-      // Geocode missing lat/lng in items
-      updateData.items = await Promise.all(updateData.items.map(async (item) => {
-        if (item.location && (item.lat === undefined || item.lng === undefined)) {
-          const coords = await geocodeLocation(item.location);
-          return { ...item, lat: coords?.lat, lng: coords?.lng };
-        }
-        return item;
-      }));
+//     if (updateData.items) {
+//       if (!Array.isArray(updateData.items)) {
+//         return res.status(400).json({ message: 'Items must be an array' });
+//       }
+//       // Geocode missing lat/lng in items
+//       updateData.items = await Promise.all(updateData.items.map(async (item) => {
+//         if (item.location && (item.lat === undefined || item.lng === undefined)) {
+//           const coords = await geocodeLocation(item.location);
+//           return { ...item, lat: coords?.lat, lng: coords?.lng };
+//         }
+//         return item;
+//       }));
+//     }
+
+//     const updated = await Itinerary.findByIdAndUpdate(id, updateData, { new: true });
+//     if (!updated) return res.status(404).json({ message: 'Itinerary not found' });
+//     res.status(200).json(updated);
+//   } catch (error) {
+//     console.error('Error updating itinerary:', error);
+//     res.status(500).json({ message: 'Server error updating itinerary' });
+//   }
+// };
+
+const updateItineraryItem = async (req, res) => {
+  try {
+    const { itineraryId, itemId } = req.params;
+    const updatedFields = req.body;
+
+    if (!itineraryId || !itemId) {
+      return res.status(400).json({ message: 'Itinerary ID and Item ID are required' });
     }
 
-    const updated = await Itinerary.findByIdAndUpdate(id, updateData, { new: true });
-    if (!updated) return res.status(404).json({ message: 'Itinerary not found' });
-    res.status(200).json(updated);
+    //  Geocode missing lat/lng in items
+    if (updatedFields.location && (updatedFields.lat === undefined || updatedFields.lng === undefined)) {
+      const coords = await geocodeLocation(updatedFields.location);
+      updatedFields.lat = coords?.lat;
+      updatedFields.lng = coords?.lng;
+    }
+
+    const itinerary = await Itinerary.findById(itineraryId);
+    if (!itinerary) {
+      return res.status(404).json({ message: 'Itinerary not found' });
+    }
+
+    // Find the item index
+    const itemIndex = itinerary.items.findIndex(item => item._id.toString() === itemId);
+    if (itemIndex === -1) {
+      return res.status(404).json({ message: 'Itinerary item not found' });
+    }
+
+    // Update only specific fields on the item
+    Object.assign(itinerary.items[itemIndex], updatedFields);
+
+    await itinerary.save();
+
+    res.status(200).json({ message: 'Itinerary item updated', updatedItem: itinerary.items[itemIndex] });
   } catch (error) {
-    console.error('Error updating itinerary:', error);
-    res.status(500).json({ message: 'Server error updating itinerary' });
+    console.error('Error updating itinerary item:', error);
+    res.status(500).json({ message: 'Server error updating itinerary item' });
   }
 };
 
@@ -101,14 +140,14 @@ const updateItinerary = async (req, res) => {
 
 const deleteItineraryItem = async (req, res) => {
   try {
-  
+
     const { itineraryId, itemId } = req.body;
     if (!itineraryId || !itemId) {
-      return res.status(400).json({ 
-        message: 'Both itineraryId and itemId are required' 
+      return res.status(400).json({
+        message: 'Both itineraryId and itemId are required'
       });
     }
-   
+
 
 
     const updatedItinerary = await Itinerary.findByIdAndUpdate(
@@ -142,25 +181,36 @@ const generateSuggestions = async (req, res) => {
     }
 
     const prompt = `
-Suggest **one** travel activity for a user visiting ${locations.join(', ')} on Day ${days}.
+Suggest **5 different** travel activities for a user visiting ${locations.join(', ')} on Day ${days}.
 
-Return the suggestion in **JSON format** like this:
-{
-  "title": "Visit the Eiffel Tower",
-  "time": "02:00 PM",
-  "type": "Activity",
-  "location": "Champ de Mars, Paris"
-}
+Return the suggestions in **JSON array format** like this:
+[
+  {
+    "title": "Visit the Eiffel Tower",
+    "time": "02:00 PM",
+    "type": "Activity",
+    "location": "Champ de Mars, Paris"
+  },
+  {
+    "title": "Try French Cuisine",
+    "time": "07:00 PM",
+    "type": "Food",
+    "location": "Le Jules Verne Restaurant, Paris"
+  }
+  // more...
+]
 
-Only include one activity. Make sure:
+Make sure:
 - "title" is the name of the activity or place.
 - "time" is a realistic time for that activity (e.g., "10:00 AM", "07:00 PM").
 - "type" is one of: "Activity", "Food", "Transport", "Hotel", or "Custom".
 - "location" is specific (e.g., name of place, landmark, or address).
 
-Do not include any explanation or extra text—just return the JSON object only.
+Only return the array. No explanation or extra text.
+
 Preferences to consider: ${preferences || 'cultural experiences, popular food spots, and scenic places'}
 `;
+
 
     const suggestions = await generateGeminiResponse(prompt);
     res.status(200).json({
@@ -178,8 +228,9 @@ Preferences to consider: ${preferences || 'cultural experiences, popular food sp
 module.exports = {
   createItinerary,
   getItinerariesByTrip,
-  updateItinerary,
+  // updateItinerary,
   // deleteItinerary,
   deleteItineraryItem,
-  generateSuggestions
+  generateSuggestions,
+  updateItineraryItem
 };

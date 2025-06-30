@@ -9,6 +9,7 @@ const {
   // DELETE_ITINERARY_API,
   DELETE_ITINERARY_ITEM,
   GENERATE_SUGGESTIONS_API,
+  UPDATE_ITINERARY_ITEM
 } = itineraryEndpoints;
 
 // ========== CREATE ITINERARY ==========
@@ -106,6 +107,8 @@ export const updateItinerary = (id, tripId, date, items) => {
 //   };
 // };
 
+// ========== DELETE ITINERARY ITEM ==========
+
 export const deleteItineraryItem = (itineraryId, itemId) => {
   return async (dispatch) => {
     dispatch(setLoading(true));
@@ -128,6 +131,32 @@ export const deleteItineraryItem = (itineraryId, itemId) => {
     }
   };
 };
+
+// ========== UPDATE ITINERARY ITEM ==========
+export const updateItineraryItem = (itineraryId, itemId, updatedItem) => {
+  return async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await apiConnector(
+        "PUT",
+        UPDATE_ITINERARY_ITEM(itineraryId, itemId),
+        updatedItem
+      );
+      console.log("UPDATE_ITINERARY_ITEM RESPONSE:", response);
+
+      if (!response.data?.updatedItem) {
+        throw new Error("Item update failed");
+      }
+
+      return response.data.updatedItem;
+    } catch (error) {
+      console.error("UPDATE_ITINERARY_ITEM ERROR:", error);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+};
+
 
 
 // ========== GENERATE AI SUGGESTIONS ==========

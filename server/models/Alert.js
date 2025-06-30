@@ -30,10 +30,14 @@ const alertSchema = new mongoose.Schema({
         default: 'email',
     },
     emailSent: { type: Boolean, default: false },
+    lastCheckedAt: {
+        type: Date,
+        default: Date.now,
+    },
     createdAt: {
         type: Date,
         default: Date.now,
     },
-},{ timestamps: true });
+}, { timestamps: true });
 
 module.exports = mongoose.model('Alert', alertSchema);

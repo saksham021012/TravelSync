@@ -14,6 +14,14 @@ const iconMap = {
   emergency: "⚠️",
 };
 
+// NEW: background color for icon circle
+const iconBgColor = {
+  flight: "bg-red-500",
+  weather: "bg-blue-500",
+  news: "bg-yellow-500",
+  emergency: "bg-green-500",
+};
+
 const AlertCard = ({ alert }) => {
   return (
     <div
@@ -25,7 +33,11 @@ const AlertCard = ({ alert }) => {
       <span className="absolute top-0 left-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-600 w-0 group-hover:w-full transition-all duration-400 rounded-t-xl" />
 
       <div className="flex gap-4 items-start">
-        <div className="w-12 h-12 rounded-full flex items-center justify-center text-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
+        <div
+          className={`w-12 h-12 rounded-full animate-custom-pulse flex items-center justify-center text-lg text-white ${
+            iconBgColor[alert.type] || "bg-gray-400"
+          }`}
+        >
           {iconMap[alert.type] || "🔔"}
         </div>
         <div>

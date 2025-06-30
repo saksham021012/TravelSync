@@ -1,7 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const TripCard = ({ trip }) => {
   const { title, startDate, endDate, locations = [] } = trip;
+  const navigate = useNavigate();
 
   const formatTripDates = (start, end) => {
     const startDateObj = new Date(start);
@@ -34,8 +36,8 @@ const TripCard = ({ trip }) => {
       </p>
       <p className="text-sm text-gray-400 mb-4">{location}</p>
       <button
-        className="w-full py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg relative overflow-hidden"
-        onClick={() => alert(`Viewing details for: ${title}`)}
+        className="w-full py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg relative overflow-hidden cursor-pointer"
+        onClick={() => navigate("/my-trips")}
       >
         View Details
       </button>

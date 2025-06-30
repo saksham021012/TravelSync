@@ -25,7 +25,7 @@ export const tripEndpoints = {
   GET_ALL_TRIPS_API: BASE_URL + "/trips",            // GET
   GET_TRIP_BY_ID_API: (id) => `${BASE_URL}/trips/${id}`,  // GET
   UPDATE_TRIP_API: (id) => `${BASE_URL}/trips/${id}`,     // PUT
-  DELETE_TRIP_API: (id) => `${BASE_URL}/trips/${id}`,     // DELETE
+  DELETE_TRIP_API: (id) => `${BASE_URL}/trips/${id}`,  
   CREATE_ALERTS_FOR_TRIP_API: (id) => `${BASE_URL}/trips/alerts/create/${id}` // POST
 };
 
@@ -62,8 +62,9 @@ export const alertEndpoints = {
 export const itineraryEndpoints = {
   CREATE_ITINERARY_API: `${BASE_URL}/itineraries`,
   GET_ITINERARIES_BY_TRIP: (tripId) => `${BASE_URL}/itineraries/trip/${tripId}`,
-  UPDATE_ITINERARY_API: (id) => `${BASE_URL}/itineraries/${id}`,
- 
+  // UPDATE_ITINERARY_API: (id) => `${BASE_URL}/itineraries/${id}`,
+  UPDATE_ITINERARY_ITEM: (itineraryId, itemId) => `${BASE_URL}/itineraries/${itineraryId}/items/${itemId}`,
+
   DELETE_ITINERARY_ITEM: `${BASE_URL}/itineraries/item`, // updated
 
   // DELETE_ITINERARY_API: (id) => `${BASE_URL}/itineraries/${id}`,

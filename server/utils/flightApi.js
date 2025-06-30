@@ -6,6 +6,7 @@ if (!API_KEY) {
 }
 
 const getFlightDetails = async (flightNumber, departureDate) => {
+  console.log(`[FLIGHT API HIT] Flight: ${flightNumber}, Date: ${departureDate}`);
   const url = `https://aerodatabox.p.rapidapi.com/flights/number/${flightNumber}/${departureDate}`;
   const options = {
     headers: {
@@ -20,6 +21,10 @@ const getFlightDetails = async (flightNumber, departureDate) => {
       console.log("No flight data found for the given flight number and date.");
       return null;
     }
+
+    console.log(`Tier 2 Usage: ${response.headers['x-ratelimit-tier-2-remaining']} / ${response.headers['x-ratelimit-tier-2-limit']} remaining`);
+    console.log(`Tier 2 Resets in: ${(response.headers['x-ratelimit-tier-2-reset'] / 3600).toFixed(2)} hours`);
+
 
     const flight = response.data[0];
     if (!flight) return null;

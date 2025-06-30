@@ -134,37 +134,51 @@ exports.createTrip = async (req, res) => {
 
 exports.createAlertsForTrip = async (req, res) => {
   try {
-    console.log("req.user is: ", req.user);
     const trip = await Trip.findOne({ _id: req.params.id, user: req.user.userId });
     if (!trip) {
       return res.status(404).json({ success: false, message: "Trip not found" });
     }
 
-    // 1. Optionally delete old alerts linked to this trip (if you want a fresh start)
-    await Alert.deleteMany({ trip: trip._id });
+    const locations = trip.locations || [];
 
-    // 2. Clear the alerts array in the trip document
-    await Trip.findByIdAndUpdate(trip._id, { $set: { alerts: [] } });
+    // 1. Fetch existing alerts for the trip
+    const existingAlerts = await Alert.find({ trip: trip._id });
 
-    const locations = trip.locations; // Locations from the trip
+    const existingFlightAlert = existingAlerts.find(a => a.type === 'flight');
+    const weatherNewsAlerts = existingAlerts.filter(a =>
+      ['weather', 'news'].includes(a.type)
+    );
 
-    // We'll collect all created alerts here
+    // 2. Delete only weather and news alerts (to refresh them)
+    if (weatherNewsAlerts.length > 0) {
+      const idsToDelete = weatherNewsAlerts.map(a => a._id);
+      await Alert.deleteMany({ _id: { $in: idsToDelete } });
+
+      // Also remove from trip.alerts array
+      await Trip.findByIdAndUpdate(trip._id, {
+        $pull: { alerts: { $in: idsToDelete } },
+      });
+    }
+
+    // 3. Start fresh collection for new alerts
     let allCreatedAlerts = [];
 
-    // Generate weather and news alerts per location sequentially to aggregate alerts
+    // 4. Generate weather and news alerts per location
     for (const location of locations) {
       if (!location.city) {
         console.warn("Skipping location without city:", location);
         continue;
       }
+
       const weatherAlerts = await generateAlert({
         user: req.user.userId,
         tripId: trip._id,
         type: 'weather',
         sentVia: 'none',
-        location: location?.city,
+        location: location.city,
       });
 
+      
       const newsAlerts = await generateAlert({
         user: req.user.userId,
         tripId: trip._id,
@@ -176,62 +190,51 @@ exports.createAlertsForTrip = async (req, res) => {
       allCreatedAlerts = allCreatedAlerts.concat(weatherAlerts, newsAlerts);
     }
 
-    // Flight alerts
+    // 5. Only generate flight alert if not already present
     if (trip.flightNumber) {
       const departureDate = new Date(trip.departureTime);
-      const formattedDate = departureDate.toISOString().split('T')[0]; // "YYYY-MM-DD"
+      const formattedDate = departureDate.toISOString().split("T")[0];
 
-      const flightAlerts = await generateAlert({
-        user: req.user.userId,
-        tripId: trip._id,
-        type: 'flight',
-        sentVia: 'none',
-        flightNumber: trip.flightNumber,
-        date: formattedDate,
-      });
+      const shouldCheckFlight =
+        !existingFlightAlert ||
+        (Date.now() - new Date(existingFlightAlert.lastCheckedAt || 0).getTime() > 5 * 24 * 60 * 60 * 1000);
 
-      allCreatedAlerts = allCreatedAlerts.concat(flightAlerts);
+      if (shouldCheckFlight) {
+        const flightAlerts = await generateAlert({
+          user: req.user.userId,
+          tripId: trip._id,
+          type: "flight",
+          sentVia: "none",
+          flightNumber: trip.flightNumber,
+          date: formattedDate,
+        });
+
+        allCreatedAlerts = allCreatedAlerts.concat(flightAlerts);
+      }
     }
 
-    // Add newly created alert IDs to trip's alerts array
-    if (allCreatedAlerts.length) {
+    // 6. Add new alerts to the trip document
+    if (allCreatedAlerts.length > 0) {
       const alertIds = allCreatedAlerts.map(alert => alert._id);
       await Trip.findByIdAndUpdate(trip._id, {
         $addToSet: { alerts: { $each: alertIds } },
       });
     }
 
-    // Send one email with all alerts
-    // if (allCreatedAlerts.length > 0) {
-    //   const userDoc = await User.findById(req.user.userId);
-    //   try {
-    //     await mailSender(
-    //       userDoc.email,
-    //       "Your TravelSync Trip Alerts",
-    //       alertSummaryTemplate(allCreatedAlerts)
-    //     );
-    //     console.log(`Alert email sent to ${userDoc.email}`);
-    //   } catch (emailErr) {
-    //     console.error("Error sending consolidated email:", emailErr.message);
-    //   }
-    // }
-
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Alerts created successfully for the trip",
       alerts: allCreatedAlerts,
     });
   } catch (error) {
     console.error("Error creating alerts for trip:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Error creating alerts",
       error: error.message,
     });
   }
 };
-
-
 
 // Get all trips for a user
 exports.getUserTrips = async (req, res) => {
@@ -258,32 +261,58 @@ exports.getTripById = async (req, res) => {
 };
 
 // Update a trip
+// Update a trip - FIXED VERSION (no flight number updates)
 exports.updateTrip = async (req, res) => {
   try {
-    const { title, startDate, endDate } = req.body;
+    const { title, startDate, endDate, userLocations = [] } = req.body;
 
-    const updatedTrip = await Trip.findOneAndUpdate(
-      { _id: req.params.id, user: req.user.userId },
-      { title, startDate, endDate },
-      { new: true }
-    );
+    // Process userLocations the same way as in createTrip
+    const userLocationsData = userLocations.map(loc => ({
+      city: loc.city,
+      country: loc.country,
+      arrivalTime: loc.arrivalTime,
+      departureTime: loc.departureTime,
+    }));
 
-    if (!updatedTrip) {
+    // Get the existing trip to preserve the flight destination location
+    const existingTrip = await Trip.findOne({ _id: req.params.id, user: req.user.userId });
+    if (!existingTrip) {
       return res.status(404).json({ success: false, message: "Trip not found" });
     }
 
+    // Keep the flight destination location (last location) and update user locations
+    const flightDestination = existingTrip.locations[existingTrip.locations.length - 1];
+    const locations = [...userLocationsData, flightDestination];
+
+    const updatedTrip = await Trip.findOneAndUpdate(
+      { _id: req.params.id, user: req.user.userId },
+      { 
+        title, 
+        startDate, 
+        endDate, 
+        locations 
+      },
+      { new: true }
+    );
+
     res.status(200).json({ success: true, trip: updatedTrip });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Could not update trip" });
+    console.error("Error updating trip:", error);
+    res.status(500).json({ success: false, message: "Could not update trip", error: error.message });
   }
 };
 
 // Delete a trip
 exports.deleteTrip = async (req, res) => {
   try {
+    console.log("Received DELETE request for tripId:", req.params.id);
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ success: false, message: "Trip ID is required" });
+    }
     const deletedTrip = await Trip.findOneAndDelete({
-      _id: req.params.id,
-      user: req.user._id,
+      _id: id,
+      user: req.user.userId,
     });
 
     if (!deletedTrip) {

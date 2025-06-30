@@ -1,12 +1,21 @@
 import React, { useEffect, useState } from "react";
-import Sidebar from "../components/Common/Sidebar";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllTrips } from "../services/Operations/trip";
+import { useNavigate } from "react-router-dom";
+
+import Sidebar from "../components/Common/Sidebar";
+import CreateTripModal from "../components/Trips/CreateTripModal";
+
+import { getAllTrips, createTrip, updateTrip, deleteTrip } from "../services/Operations/trip";
 
 const Trips = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { trips, loading } = useSelector((state) => state.trip);
+
   const [searchTerm, setSearchTerm] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState("create"); // "create" | "edit" | "view"
+  const [selectedTrip, setSelectedTrip] = useState(null);
 
   useEffect(() => {
     dispatch(getAllTrips());
@@ -14,7 +23,7 @@ const Trips = () => {
 
   const filteredTrips = trips.filter((trip) => {
     const title = trip.title?.toLowerCase() || "";
-    const location = trip?.locations?.map(loc => loc.city).join(", ").toLowerCase() || "";
+    const location = trip?.locations?.map((loc) => loc.city).join(", ").toLowerCase() || "";
     return title.includes(searchTerm.toLowerCase()) || location.includes(searchTerm.toLowerCase());
   });
 
@@ -26,24 +35,50 @@ const Trips = () => {
     return `${s.toLocaleDateString("en-US", formatOpts)} - ${e.toLocaleDateString("en-US", formatOpts)}, ${year}`;
   };
 
+  const openModal = (mode, trip = null) => {
+    setModalMode(mode);
+    setSelectedTrip(trip);
+    setIsModalOpen(true);
+  };
+
+  const handleSaveTrip = async (data) => {
+    try {
+      if (modalMode === "create") {
+        await dispatch(createTrip(data, navigate));
+      } else if (modalMode === "edit" && selectedTrip?._id) {
+        await dispatch(updateTrip(selectedTrip._id, data));
+      }
+      dispatch(getAllTrips());
+    } finally {
+      setIsModalOpen(false);
+      setSelectedTrip(null);
+    }
+  };
+
+  const handleDeleteTrip = async (tripId) => {
+    console.log("Deleting trip with id: ",tripId);
+    dispatch(deleteTrip(tripId));
+    dispatch(getAllTrips());
+
+  };
+
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 text-gray-800">
-      {/* Sidebar */}
       <Sidebar />
 
-      {/* Main Content */}
-      <main className="flex-1 ml-72 p-8">
+      <main className="flex-1 p-8">
+        {/* Header */}
         <header className="flex justify-between items-center mb-10">
           <h1 className="text-3xl font-bold text-gray-900">Your Trips</h1>
           <button
-            onClick={() => alert("Open trip creation wizard")}
-            className="create-trip-btn py-2 px-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-xl font-semibold shadow hover:shadow-lg transition"
+            onClick={() => openModal("create")}
+            className="py-2 px-4 cursor-pointer bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-xl font-semibold shadow hover:shadow-lg transition"
           >
             ⊕ Create New Trip
           </button>
         </header>
 
-        {/* Search Bar */}
+        {/* Search */}
         <div className="relative mb-6">
           <span className="absolute left-3 top-3 text-gray-400 text-lg">🔍</span>
           <input
@@ -55,14 +90,12 @@ const Trips = () => {
           />
         </div>
 
-        {/* Trips */}
+        {/* Trip List */}
         {loading ? (
           <p className="text-gray-500">Loading trips...</p>
         ) : filteredTrips.length > 0 ? (
-          
-          
           <div className="flex flex-col gap-6">
-            {filteredTrips.map((trip, index) => (
+            {filteredTrips.map((trip) => (
               <div
                 key={trip._id}
                 className="group bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition cursor-pointer transform hover:-translate-y-1 relative overflow-hidden"
@@ -75,21 +108,27 @@ const Trips = () => {
                       {formatDateRange(trip.startDate, trip.endDate)}
                     </p>
                     <p className="text-sm text-gray-400">
-                      {trip.locations?.map(loc => loc.city).join(", ")}
+                      {trip.locations?.map((loc) => loc.city).join(", ")}
                     </p>
                   </div>
                   <div className="flex gap-3 opacity-70 hover:opacity-100">
                     <button
-                      onClick={() => alert(`Viewing details for: ${trip.title}`)}
-                      className="action-btn border border-gray-300 text-sm px-3 py-2 rounded-md hover:bg-indigo-500 hover:text-white transition"
+                      onClick={() => openModal("view", trip)}
+                      className="border cursor-pointer border-gray-300 text-sm px-3 py-2 rounded-md hover:bg-indigo-500 hover:text-white transition"
                     >
                       👁 View
                     </button>
                     <button
-                      onClick={() => alert(`Editing trip: ${trip.title}`)}
-                      className="action-btn border border-green-400 text-sm px-3 py-2 rounded-md hover:bg-green-500 hover:text-white transition"
+                      onClick={() => openModal("edit", trip)}
+                      className="border cursor-pointer border-green-400 text-sm px-3 py-2 rounded-md hover:bg-green-500 hover:text-white transition"
                     >
                       ✎ Edit
+                    </button>
+                    <button
+                      onClick={() => handleDeleteTrip(trip._id)}
+                      className="border cursor-pointer border-red-400 text-sm px-3 py-2 rounded-md hover:bg-red-500 hover:text-white transition"
+                    >
+                      🗑 Delete
                     </button>
                   </div>
                 </div>
@@ -104,6 +143,18 @@ const Trips = () => {
           </div>
         )}
       </main>
+
+      {/* Modal */}
+      <CreateTripModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedTrip(null);
+        }}
+        onSave={handleSaveTrip}
+        initialData={selectedTrip}
+        mode={modalMode}
+      />
     </div>
   );
 };

@@ -4,6 +4,7 @@ const GNEWS_API_KEY = process.env.GNEWS_API_KEY; // Store in .env
 
 const getNewsAlerts = async (location) => {
   try {
+    console.log("NEWS API HAS BEEN HIT")
     const response = await axios.get(`https://gnews.io/api/v4/search`, {
       params: {
         q: `${location} travel OR protest OR disruption OR emergency`,

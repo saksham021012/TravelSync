@@ -62,7 +62,7 @@ export const createTrip = (tripData, navigate) => {
         throw new Error(response.data.message);
       }
 
-      navigate("/dashboard");
+      navigate("/my-trips");
       return response.data.trip;
     } catch (error) {
       console.error("CREATE_TRIP ERROR:", error);
@@ -98,6 +98,8 @@ export const deleteTrip = (tripId) => {
   return async (dispatch) => {
     dispatch(setLoading(true));
     try {
+      console.log("Calling DELETE_TRIP_API with tripId:", tripId);
+      console.log("Final URL:", DELETE_TRIP_API(tripId));
       const response = await apiConnector("DELETE", DELETE_TRIP_API(tripId));
       console.log("DELETE_TRIP RESPONSE:", response);
 

@@ -3,9 +3,10 @@ const router = express.Router();
 const {
   createItinerary,
   getItinerariesByTrip,
-  updateItinerary,
+  // updateItinerary,
   // deleteItinerary,
   deleteItineraryItem,
+  updateItineraryItem,
   generateSuggestions
 } = require('../controllers/Itinerary');
 
@@ -16,13 +17,17 @@ router.post('/', createItinerary);
 router.get('/trip/:tripId', getItinerariesByTrip);
 
 // PUT /api/itineraries/:id
-router.put('/:id', updateItinerary);
+// router.put('/:id', updateItinerary);
 
 // DELETE /api/itineraries/:id
 // router.delete('/:id', deleteItinerary);
 
 // POST /api/itineraries/ai/suggestions
 router.post('/ai/suggestions', generateSuggestions); 
+
+
+router.put('/itineraries/:itineraryId/items/:itemId', updateItineraryItem);
+
 
 //DELETE /api/itineraries/items/:id
 

@@ -71,7 +71,7 @@ const generateAlert = async ({ user, tripId, type, sentVia = 'email', location, 
 
       const news = await getNewsAlerts(location);
       if (!news.length) {
-        // no alerts, do nothing or add no alert message if you want
+        console.log("No news alerts are available")
       } else {
         for (let i = 0; i < Math.min(2, news.length); i++) {
           const n = news[i];
@@ -102,6 +102,7 @@ const generateAlert = async ({ user, tripId, type, sentVia = 'email', location, 
           title: `Flight Status: ${flightData.status}`,
           message: `Flight ${flightNumber} is currently ${flightData.status} on ${date || 'the scheduled date'}`,
           sentVia,
+          lastCheckedAt: new Date(),
         });
         createdAlerts.push(flightAlert);
         if (sentVia === 'email') emailAlerts.push(flightAlert);
@@ -143,4 +144,4 @@ const generateAlert = async ({ user, tripId, type, sentVia = 'email', location, 
   }
 };
 
-module.exports = {generateAlert}
+module.exports = { generateAlert }
