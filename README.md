@@ -19,7 +19,7 @@
 ## ✨ Features
 
 - 🔐 **User Authentication** – with OTP verification via email
-- 🛫 **Trip Management** – CRUD operations with flight segment detection
+- 🛫 **Trip Management** – Create, update, and manage trips with support for multiple destinations and schedules
 - 🌦️ **Weather Alerts** – based on destination & travel time
 - ✈️ **Flight Status Monitoring** – real-time flight info using AeroDataBox
 - 📰 **Localized News/Disruption Alerts** – region-specific news from trusted sources
