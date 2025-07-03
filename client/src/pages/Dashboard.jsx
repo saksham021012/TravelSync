@@ -34,7 +34,7 @@ const Dashboard = () => {
     const today = new Date();
     const startDate = new Date(trip.startDate);
     const endDate = new Date(trip.endDate);
-    
+
     // Trip is upcoming if start date is today or in the future
     // Trip is ongoing if today is between start and end date
     return endDate >= today;
@@ -57,96 +57,158 @@ const Dashboard = () => {
 
   // Second: when trips are ready, fetch itineraries and alerts
   useEffect(() => {
-    const fetchScheduleAndAlerts = async () => {
-      if (!upcomingTrips || upcomingTrips.length === 0) return;
+  const fetchScheduleAndAlerts = async () => {
+    if (!upcomingTrips || upcomingTrips.length === 0) return;
+    
+    setLoading(true);
+    
+    try {
+      // Get today's date in multiple formats for debugging
+      const todayDate = new Date();
+      const today = formatDate(todayDate);
+      const todayISO = todayDate.toISOString().split('T')[0]; // YYYY-MM-DD format
       
-      const tripId = upcomingTrips[0]._id;
-      if (!tripId) return;
-
-      setLoading(true);
       
-      try {
-        // Fetch itineraries
-        const itineraryRes = await dispatch(getItinerariesByTrip(tripId));
-        console.log("Itinerary Response:", itineraryRes); // Debug log
+      
+      let allTodaysSchedules = [];
+      let nearestTrip = null;
+      let nearestTripDistance = Infinity;
+      
+      // Process each upcoming trip
+      for (const trip of upcomingTrips) {
+        const tripId = trip._id;
+        if (!tripId) continue;
         
-        // Get today's date in consistent format
-        const today = formatDate(new Date());
-        console.log("Today's date:", today); // Debug log
         
-        // Extract itinerary data - handle different possible structures
-        let itineraryData = [];
-        
-        if (Array.isArray(itineraryRes)) {
-          // If itineraryRes is directly an array
-          itineraryData = itineraryRes;
-        } else if (itineraryRes?.payload && Array.isArray(itineraryRes.payload)) {
-          // If it's in payload
-          itineraryData = itineraryRes.payload;
-        } else if (itineraryRes?.data && Array.isArray(itineraryRes.data)) {
-          // If it's in data
-          itineraryData = itineraryRes.data;
-        }
-        
-        console.log("Itinerary data:", itineraryData); // Debug log
-        console.log("Itinerary data length:", itineraryData.length); // Debug log
-        
-        if (Array.isArray(itineraryData) && itineraryData.length > 0) {
-          // Filter items for today - each item is an individual itinerary entry
-          const todaysItems = itineraryData.filter((item) => {
-            const itemDate = formatDate(item.date);
-            console.log("Comparing item date:", itemDate, "with today:", today, "Match:", itemDate === today);
-            return itemDate === today;
-          });
+        try {
+          // Fetch itineraries for this trip
+          const itineraryRes = await dispatch(getItinerariesByTrip(tripId));
           
-          console.log("Today's items:", todaysItems);
-          console.log("Today's items length:", todaysItems.length);
-          setSchedule(todaysItems);
-        } else {
-          console.log("Itinerary data is empty or not an array:", itineraryData);
-          setSchedule([]);
+          
+          // Extract itinerary data
+          let itineraryData = [];
+          if (Array.isArray(itineraryRes)) {
+            itineraryData = itineraryRes;
+          } else if (itineraryRes?.payload && Array.isArray(itineraryRes.payload)) {
+            itineraryData = itineraryRes.payload;
+          } else if (itineraryRes?.data && Array.isArray(itineraryRes.data)) {
+            itineraryData = itineraryRes.data;
+          }
+          
+         
+          
+          if (itineraryData.length > 0) {
+            
+            itineraryData.forEach((item, index) => {
+              const rawDate = item.date;
+              const formattedDate = formatDate(item.date);
+              const itemDateObj = new Date(item.date);
+              const itemDateISO = itemDateObj.toISOString().split('T')[0];
+              
+            });
+            
+            // Try multiple date comparison methods
+            const todaysItems = itineraryData.filter((item) => {
+              const itemDate = formatDate(item.date);
+              const itemDateObj = new Date(item.date);
+              const itemDateISO = itemDateObj.toISOString().split('T')[0];
+              
+              // Try different comparison methods
+              const matchFormatted = itemDate === today;
+              const matchISO = itemDateISO === todayISO;
+              const matchDateOnly = itemDateObj.toDateString() === todayDate.toDateString();
+              
+            
+             
+              
+              // Return true if any comparison method matches
+              return matchFormatted || matchISO || matchDateOnly;
+            });
+            
+           
+            
+            // Add trip context to each schedule item
+            const todaysItemsWithTrip = todaysItems.map(item => ({
+              ...item,
+              tripId: tripId,
+              tripName: trip.title || trip.name || `Trip ${tripId}`,
+              tripDestination: trip.destination || ''
+            }));
+            
+            allTodaysSchedules.push(...todaysItemsWithTrip);
+            
+            // Calculate distance to today for this trip
+            const tripDates = itineraryData.map(item => new Date(item.date));
+            const minDate = new Date(Math.min(...tripDates));
+            const maxDate = new Date(Math.max(...tripDates));
+            
+            let distanceToToday;
+            if (todayDate < minDate) {
+              distanceToToday = Math.abs(minDate - todayDate);
+            } else if (todayDate > maxDate) {
+              distanceToToday = Math.abs(todayDate - maxDate);
+            } else {
+              distanceToToday = 0;
+            }
+            
+            if (distanceToToday < nearestTripDistance) {
+              nearestTripDistance = distanceToToday;
+              nearestTrip = trip;
+            }
+          } else {
+            console.log(`No itinerary data for trip ${tripId}`);
+          }
+          
+        } catch (tripError) {
+          console.error(`Error fetching itinerary for trip ${tripId}:`, tripError);
         }
-
-        // Fetch alerts
-        const alertRes = await dispatch(getAlertsByTrip(tripId));
-        console.log("Alert Response:", alertRes); // Debug log
-        
-        // Extract alert data - based on your console log, it seems to be directly in the response
-        let alertData = [];
-        
-        if (Array.isArray(alertRes)) {
-          // If alertRes is directly an array
-          alertData = alertRes;
-        } else if (alertRes?.payload && Array.isArray(alertRes.payload)) {
-          // If it's in payload
-          alertData = alertRes.payload;
-        } else if (alertRes?.data && Array.isArray(alertRes.data)) {
-          // If it's in data
-          alertData = alertRes.data;
-        }
-        
-        console.log("Processed alert data:", alertData); // Debug log
-        
-        if (alertData.length > 0) {
-          const recentAlerts = alertData.slice(-3).reverse();
-          setAlerts(recentAlerts);
-        } else {
-          console.log("No alert data found");
+      }
+      
+      
+      // Set all today's schedules
+      setSchedule(allTodaysSchedules);
+      
+      // Fetch alerts for the nearest trip
+      if (nearestTrip?._id) {
+        try {
+          const alertRes = await dispatch(getAlertsByTrip(nearestTrip._id));
+          
+          let alertData = [];
+          if (Array.isArray(alertRes)) {
+            alertData = alertRes;
+          } else if (alertRes?.payload && Array.isArray(alertRes.payload)) {
+            alertData = alertRes.payload;
+          } else if (alertRes?.data && Array.isArray(alertRes.data)) {
+            alertData = alertRes.data;
+          }
+          
+          if (alertData.length > 0) {
+            const recentAlerts = alertData.slice(-3).reverse();
+            setAlerts(recentAlerts);
+          } else {
+            setAlerts([]);
+          }
+          
+        } catch (alertError) {
+          console.error("Error fetching alerts for nearest trip:", alertError);
           setAlerts([]);
         }
-        
-      } catch (error) {
-        console.error("Error fetching schedule and alerts:", error);
-        toast.error("Failed to load schedule and alerts");
-        setSchedule([]);
+      } else {
         setAlerts([]);
-      } finally {
-        setLoading(false);
       }
-    };
-
-    fetchScheduleAndAlerts();
-  }, [dispatch, upcomingTrips]);
+      
+    } catch (error) {
+      console.error("Error fetching schedule and alerts:", error);
+      toast.error("Failed to load schedule and alerts");
+      setSchedule([]);
+      setAlerts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  fetchScheduleAndAlerts();
+}, [dispatch, upcomingTrips]);
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 text-gray-800">
@@ -168,9 +230,9 @@ const Dashboard = () => {
               <p className="text-gray-500">Loading trips...</p>
             ) : upcomingTrips.length > 0 ? (
               upcomingTrips.map((trip) => (
-                <TripCard 
-                  key={trip._id} 
-                  trip={trip} 
+                <TripCard
+                  key={trip._id}
+                  trip={trip}
                   onClick={() => navigate('/my-trips')}
                 />
               ))
