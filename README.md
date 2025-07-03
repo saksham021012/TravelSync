@@ -74,4 +74,3 @@ GNEWS_API_KEY=your_news_api_key
 AERODATABOX_API_KEY=your_aerodatabox_api_key
 GEOAPIFY_API_KEY=your_geoapify_api_key
 ```
-```
