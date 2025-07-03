@@ -61,7 +61,7 @@ npm start
 
 ```
 PORT=5000
-MONGODB_URL=mongodb://localhost:27017/travelsync
+MONGODB_URL= URL
 
 MAIL_HOST=smtp.example.com
 MAIL_USER=your-email@example.com
