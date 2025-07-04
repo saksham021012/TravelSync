@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import Sidebar from "../components/Common/Sidebar";
 import CreateTripModal from "../components/Trips/CreateTripModal";
+import toast from "react-hot-toast";
 
 import { getAllTrips, createTrip, updateTrip, deleteTrip } from "../services/Operations/trip";
 
@@ -56,15 +57,25 @@ const Trips = () => {
   };
 
   const handleDeleteTrip = async (tripId) => {
-    console.log("Deleting trip with id: ",tripId);
-    dispatch(deleteTrip(tripId));
-    dispatch(getAllTrips());
+    try {
+      console.log("Deleting trip with id:", tripId);
+
+      await dispatch(deleteTrip(tripId));
+      await dispatch(getAllTrips());
+
+      toast.success("Trip deleted successfully");
+    } catch (error) {
+      console.error("Error deleting trip:", error);
+      toast.error("Failed to delete trip");
+    }
 
   };
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 text-gray-800">
-      <Sidebar />
+      <nav className="w-full md:w-60 bg-white shadow-sm">
+        <Sidebar />
+      </nav>
 
       <main className="flex-1 p-8">
         {/* Header */}

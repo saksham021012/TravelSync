@@ -56,7 +56,9 @@ const AlertsPage = () => {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-slate-100 to-slate-200">
-      <Sidebar />
+      <nav className=" bg-white ">
+        <Sidebar />
+      </nav>
       <main className="flex-1 p-8 animate-fadeIn">
         <h1 className="text-3xl font-bold text-gray-800 mb-6">Alerts</h1>
 

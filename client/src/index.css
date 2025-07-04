@@ -54,7 +54,7 @@ html {
     transform: scale(1);
   }
   50% {
-    transform: scale(1.05);
+    transform: scale(1.1);
   }
 }
 
@@ -107,3 +107,108 @@ html {
   animation: custom-pulse 1.8s ease-in-out infinite;
 }
 
+.btn {
+  @apply px-4 py-2 text-sm rounded-md font-medium shadow transition-all;
+}
+.btn-primary {
+  @apply bg-purple-600 text-white hover:bg-purple-700;
+}
+.btn-secondary {
+  @apply bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200;
+}
+
+/* === Slide in from top === */
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-slide-in-down {
+  animation: slideInDown 0.5s ease-out;
+}
+
+/* === Fade in === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* === Shake === */
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20%, 60% {
+    transform: translateX(-8px);
+  }
+  40%, 80% {
+    transform: translateX(8px);
+  }
+}
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* === Profile Component Custom Animations === */
+@keyframes fadeInUpProfile {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Animation utility classes for Profile */
+.animate-fade-in-up {
+  animation: fadeInUpProfile 0.6s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out;
+}
+
+/* Animation delay utility classes */
+.animation-delay-100 {
+  animation-delay: 0.1s;
+}
+
+.animation-delay-200 {
+  animation-delay: 0.2s;
+}
+
+.animation-delay-300 {
+  animation-delay: 0.3s;
+}
+
+/* Responsive layout fixes */
+@media (max-width: 768px) {
+  .flex {
+    flex-direction: column;
+  }
+}

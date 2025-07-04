@@ -178,7 +178,7 @@ exports.createAlertsForTrip = async (req, res) => {
         location: location.city,
       });
 
-      
+
       const newsAlerts = await generateAlert({
         user: req.user.userId,
         tripId: trip._id,
@@ -194,10 +194,18 @@ exports.createAlertsForTrip = async (req, res) => {
     if (trip.flightNumber) {
       const departureDate = new Date(trip.departureTime);
       const formattedDate = departureDate.toISOString().split("T")[0];
+      const hoursUntilDeparture = (departureDate - Date.now()) / (1000 * 60 * 60);
+
+      let checkInterval;
+      if (hoursUntilDeparture <= 24) {
+        checkInterval = 6 * 60 * 60 * 1000; // 4 hours when close
+      } else {
+        checkInterval = 24 * 60 * 60 * 1000; // 24 hours when far out
+      }
 
       const shouldCheckFlight =
         !existingFlightAlert ||
-        (Date.now() - new Date(existingFlightAlert.lastCheckedAt || 0).getTime() > 5 * 24 * 60 * 60 * 1000);
+        (Date.now() - new Date(existingFlightAlert.lastCheckedAt || 0).getTime() > checkInterval);
 
       if (shouldCheckFlight) {
         const flightAlerts = await generateAlert({
@@ -208,6 +216,14 @@ exports.createAlertsForTrip = async (req, res) => {
           flightNumber: trip.flightNumber,
           date: formattedDate,
         });
+
+        // Update lastCheckedAt for the flight alert
+        if (flightAlerts.length > 0) {
+          await Alert.updateOne(
+            { _id: flightAlerts[0]._id },
+            { lastCheckedAt: new Date() }
+          );
+        }
 
         allCreatedAlerts = allCreatedAlerts.concat(flightAlerts);
       }
@@ -286,11 +302,11 @@ exports.updateTrip = async (req, res) => {
 
     const updatedTrip = await Trip.findOneAndUpdate(
       { _id: req.params.id, user: req.user.userId },
-      { 
-        title, 
-        startDate, 
-        endDate, 
-        locations 
+      {
+        title,
+        startDate,
+        endDate,
+        locations
       },
       { new: true }
     );

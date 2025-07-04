@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard';
 import TripPage from './pages/TripPage'
 import ItinerariesPage from './pages/ItinerariesPage';
 import AlertsPage from './pages/AlertsPage';
+import Profile from './pages/Profile';
 
 
 function App() {
@@ -61,6 +62,12 @@ function App() {
           path="/my-alerts"
           element={
             <AlertsPage />
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <Profile />
           }
         />
       </Routes>

@@ -6,8 +6,8 @@ const { generateAlert } = require("../../config/generateAlert");
 const mailSender = require("../../utils/mailSender");
 const alertSummaryTemplate = require("../../mail/templates/alertSummaryTemplate");
 
-// ⏰ Every 8 hours
-cron.schedule("0 */6 * * *", async () => {
+// ⏰ Every 12 hours
+cron.schedule("0 */12 * * *", async () => {
   console.log("🔔 Running scheduled alert generation + email job...");
   console.log(`[${new Date().toISOString()}] ⏰ Cron job triggered`);
 
@@ -24,7 +24,7 @@ cron.schedule("0 */6 * * *", async () => {
       const userEmail = trip.user.email;
       const tripId = trip._id;
 
-      // 🔁 Generate alerts for locations
+      // 🔁 Generate alerts for locations (always refresh weather & news)
       for (const location of trip.locations) {
         const city = location?.city;
         if (!city) continue;
@@ -46,19 +46,43 @@ cron.schedule("0 */6 * * *", async () => {
         });
       }
 
-      // ✈️ Flight alerts
+      // ✈️ Flight alerts - Apply same smart interval logic
       if (trip.flightNumber) {
         const departureDate = new Date(trip.departureTime || trip.startDate);
         const formattedDate = departureDate.toISOString().split("T")[0];
+        const hoursUntilDeparture = (departureDate - Date.now()) / (1000 * 60 * 60);
 
-        await generateAlert({
-          user: userId,
-          tripId,
-          type: "flight",
-          sentVia: "none",
-          flightNumber: trip.flightNumber,
-          date: formattedDate,
+        // Check if we have existing flight alert
+        const existingFlightAlert = await Alert.findOne({ 
+          trip: tripId, 
+          type: 'flight' 
         });
+
+        // Apply same interval logic as manual checks
+        let checkInterval;
+        if (hoursUntilDeparture <= 24) {
+          checkInterval = 6 * 60 * 60 * 1000; // 6 hours when close
+        } else {
+          checkInterval = 24 * 60 * 60 * 1000; // 24 hours when far out
+        }
+
+        const shouldCheckFlight = 
+          !existingFlightAlert || 
+          (Date.now() - new Date(existingFlightAlert.lastCheckedAt || 0).getTime() > checkInterval);
+
+        if (shouldCheckFlight) {
+          console.log(`✈️ Checking flight ${trip.flightNumber} for trip ${trip.title}`);
+          await generateAlert({
+            user: userId,
+            tripId,
+            type: "flight",
+            sentVia: "none",
+            flightNumber: trip.flightNumber,
+            date: formattedDate,
+          });
+        } else {
+          console.log(`⏭️ Skipping flight check for ${trip.flightNumber} (too recent)`);
+        }
       }
 
       // ⏱️ Small delay to allow DB write
@@ -89,7 +113,7 @@ cron.schedule("0 */6 * * *", async () => {
             `TravelSync: New Alerts for Your Trip "${trip.title || "Trip"}"`,
             alertSummaryTemplate(unsentAlerts)
           );
-          console.log(`📧 Sent alert email to ${userEmail}`);
+          console.log(`📧 Sent alert email to ${userEmail} with ${unsentAlerts.length} alerts`);
 
           // ✅ Mark as emailed
           await Alert.updateMany(
@@ -99,6 +123,8 @@ cron.schedule("0 */6 * * *", async () => {
         } catch (emailErr) {
           console.error(`❌ Failed to send email to ${userEmail}:`, emailErr.message);
         }
+      } else {
+        console.log(`📭 No new alerts to send for ${userEmail}`);
       }
     }
 

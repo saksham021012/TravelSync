@@ -9,6 +9,7 @@ const cors = require("cors")
 const { cloudinaryConnect } = require("./config/cloudinary")
 const fileUpload = require("express-fileupload")
 require("./jobs/automation/alertEmailScheduler");
+
 const PORT = process.env.PORT || 4000
 
 
@@ -40,6 +41,7 @@ const emergency = require("./routes/emergency");
 const flightSegment = require("./routes/flightSegment");
 const trip = require("./routes/trip");
 const itineraryRoutes = require('./routes/itinerary');
+const profileRoutes = require("./routes/profile");
 
 // Use routes
 app.use("/api/auth", auth);
@@ -48,7 +50,7 @@ app.use("/api/alerts", alerts);
 app.use("/api/emergency", emergency);
 app.use("/api/flightSegment", flightSegment);
 app.use('/api/itineraries', itineraryRoutes);
-
+app.use("/api/profile", profileRoutes);
 
 //default route
 

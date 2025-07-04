@@ -33,7 +33,10 @@ const userSchema = new mongoose.Schema({
     enum: ['email', 'push', 'both'],
     default: 'email',
   },
-
+  profile: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Profile",
+  },
   trips: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Trip',

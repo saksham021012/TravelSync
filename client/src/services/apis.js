@@ -72,6 +72,12 @@ export const itineraryEndpoints = {
   GENERATE_SUGGESTIONS_API: `${BASE_URL}/itineraries/ai/suggestions`,
 };
 
+export const profileEndpoints = {
+  GET_USER_PROFILE_API: BASE_URL + "/profile/me",                
+  UPDATE_PROFILE_API: BASE_URL + "/profile/update",              
+  UPDATE_DISPLAY_PICTURE_API: BASE_URL + "/profile/update-dp",   
+  DELETE_ACCOUNT_API: BASE_URL + "/profile/delete",              
+};
 
 // ========== EMERGENCY SERVICES ==========
 export const emergencyEndpoints = {

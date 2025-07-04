@@ -9,7 +9,7 @@ const AlertItem = ({ alert }) => {
 
   return (
     <div className="flex items-center gap-4 py-4 border-b hover:bg-gray-50 px-4 rounded-lg transition-all">
-      <div className={`w-10 h-10 flex items-center justify-center rounded-full text-white text-lg animate-pulse bg-gradient-to-r ${typeColors[type]}`}>
+      <div className={`w-10 h-10 animate-pulseCustom flex items-center justify-center rounded-full text-white text-lg  bg-gradient-to-r ${typeColors[type]}`}>
         {icon}
       </div>
       <div>

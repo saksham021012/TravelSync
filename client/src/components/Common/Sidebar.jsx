@@ -18,7 +18,7 @@ const Sidebar = () => {
     { label: "Trips", href: "/my-trips", icon: <Mountain className="w-4 h-4 mr-3 opacity-70" /> },
     { label: "Itineraries", href: "/my-itineraries", icon: <Calendar className="w-4 h-4 mr-3" /> },
     { label: "Alerts", href: "/my-alerts", icon: <Bell className="w-4 h-4 mr-3 opacity-70" /> },
-    { label: "Settings", href: "/settings", icon: <Settings className="w-4 h-4 mr-3 opacity-70" /> },
+    { label: "Settings", href: "/profile", icon: <Settings className="w-4 h-4 mr-3 opacity-70" /> },
     { label: "Logout", href: "/logout", icon: <LogOut className="w-4 h-4 mr-3 opacity-70" /> },
   ];
 
