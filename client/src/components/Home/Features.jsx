@@ -4,32 +4,32 @@ const features = [
     {
         icon: '✈️',
         title: 'Real-Time Flight Tracking',
-        desc: 'Never miss a beat with live flight status updates, instant delay notifications, and gate changes. Get proactive alerts before disruptions affect your journey.',
+        desc: 'Never miss a beat with live flight status updates, delay notifications. Get proactive alerts before disruptions affect your journey.',
     },
     {
         icon: '🌦️',
         title: 'Smart Weather Intelligence',
-        desc: 'Receive destination-specific weather forecasts, severe weather warnings, and intelligent packing suggestions based on local climate conditions.',
+        desc: 'Receive destination-specific weather forecasts, severe weather warnings based on local climate conditions.',
     },
     {
         icon: '🚨',
         title: 'Emergency Assistance Network',
-        desc: 'Access critical local emergency services instantly—hospitals, police stations, embassies, and emergency contacts tailored to your exact location.',
+        desc: 'Access critical local emergency services instantly—hospitals, police stations, embassies, and emergency contacts tailored to your location.',
     },
     {
         icon: '📰',
         title: 'Localized Travel Intelligence',
-        desc: 'Stay informed with curated local news, travel advisories, safety updates, and cultural insights that matter to your specific destination.',
+        desc: 'Stay informed with curated local news, travel advisories, safety updates that matter to your specific destination.',
     },
     {
         icon: '🎯',
         title: 'AI-Powered Trip Optimization',
-        desc: 'Experience intelligent itinerary management with automatic flight parsing, smart scheduling suggestions, and personalized recommendations that adapt to your travel style.',
+        desc: 'Experience intelligent itinerary management with automatic flight parsing, smart suggestions, and location-based recommendations tailored to your trip details.',
     },
     {
         icon: '🕒',
         title: 'Timezone-Aware Planning',
-        desc: 'Seamlessly manage your schedule across time zones with automatic local time conversion, jet lag optimization, and smart scheduling that keeps you on track globally.',
+        desc: 'Seamlessly manage your schedule across time zones with automatic local time conversion and smart scheduling that keeps you on track globally.',
     },
 ];
 

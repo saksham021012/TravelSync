@@ -59,7 +59,7 @@ const AlertsPage = () => {
       <nav className=" bg-white ">
         <Sidebar />
       </nav>
-      <main className="flex-1 p-8 animate-fadeIn">
+      <main className="flex-1 p-8 animate-fade-in-up">
         <h1 className="text-3xl font-bold text-gray-800 mb-6">Alerts</h1>
 
         <FilterBar

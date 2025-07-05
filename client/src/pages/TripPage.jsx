@@ -77,7 +77,7 @@ const Trips = () => {
         <Sidebar />
       </nav>
 
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-8 animate-fade-in-up">
         {/* Header */}
         <header className="flex justify-between items-center mb-10">
           <h1 className="text-3xl font-bold text-gray-900">Your Trips</h1>

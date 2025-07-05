@@ -223,7 +223,7 @@ const TravelSyncItineraries = () => {
     </nav>
 
     {/* Main Content */}
-    <main className="flex-1 p-4 sm:p-6 md:p-8 bg-slate-50">
+    <main className="flex-1 p-4 sm:p-6 md:p-8 bg-slate-50 animate-fade-in-up">
       {/* Header */}
       <div className="mb-6 md:mb-8">
         <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-slate-900 mb-4 sm:mb-6 md:mb-8">

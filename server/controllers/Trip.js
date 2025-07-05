@@ -140,96 +140,151 @@ exports.createAlertsForTrip = async (req, res) => {
     }
 
     const locations = trip.locations || [];
-
-    // 1. Fetch existing alerts for the trip
     const existingAlerts = await Alert.find({ trip: trip._id });
-
     const existingFlightAlert = existingAlerts.find(a => a.type === 'flight');
-    const weatherNewsAlerts = existingAlerts.filter(a =>
-      ['weather', 'news'].includes(a.type)
-    );
+    const weatherNewsAlerts = existingAlerts.filter(a => ['weather', 'news'].includes(a.type));
+    let allCreatedAlerts = [];
 
-    // 2. Delete only weather and news alerts (to refresh them)
+    // Delete existing weather and news alerts to refresh them
     if (weatherNewsAlerts.length > 0) {
       const idsToDelete = weatherNewsAlerts.map(a => a._id);
       await Alert.deleteMany({ _id: { $in: idsToDelete } });
-
-      // Also remove from trip.alerts array
       await Trip.findByIdAndUpdate(trip._id, {
         $pull: { alerts: { $in: idsToDelete } },
       });
     }
 
-    // 3. Start fresh collection for new alerts
-    let allCreatedAlerts = [];
-
-    // 4. Generate weather and news alerts per location
+    // Generate weather and news alerts for each location
     for (const location of locations) {
       if (!location.city) {
         console.warn("Skipping location without city:", location);
         continue;
       }
 
-      const weatherAlerts = await generateAlert({
+      const alertParams = {
         user: req.user.userId,
         tripId: trip._id,
-        type: 'weather',
         sentVia: 'none',
         location: location.city,
-      });
+      };
 
-
-      const newsAlerts = await generateAlert({
-        user: req.user.userId,
-        tripId: trip._id,
-        type: 'news',
-        sentVia: 'none',
-        location: location.city,
-      });
+      const [weatherAlerts, newsAlerts] = await Promise.all([
+        generateAlert({ ...alertParams, type: 'weather' }),
+        generateAlert({ ...alertParams, type: 'news' })
+      ]);
 
       allCreatedAlerts = allCreatedAlerts.concat(weatherAlerts, newsAlerts);
     }
 
-    // 5. Only generate flight alert if not already present
+    // Handle flight alerts
     if (trip.flightNumber) {
       const departureDate = new Date(trip.departureTime);
       const formattedDate = departureDate.toISOString().split("T")[0];
-      const hoursUntilDeparture = (departureDate - Date.now()) / (1000 * 60 * 60);
+      const hoursUntilDeparture = (departureDate.getTime() - Date.now()) / (1000 * 60 * 60);
 
-      let checkInterval;
-      if (hoursUntilDeparture <= 24) {
-        checkInterval = 6 * 60 * 60 * 1000; // 4 hours when close
-      } else {
-        checkInterval = 24 * 60 * 60 * 1000; // 24 hours when far out
-      }
+      console.log("Flight:", trip.flightNumber, "Hours until departure:", hoursUntilDeparture);
 
-      const shouldCheckFlight =
-        !existingFlightAlert ||
-        (Date.now() - new Date(existingFlightAlert.lastCheckedAt || 0).getTime() > checkInterval);
-
-      if (shouldCheckFlight) {
-        const flightAlerts = await generateAlert({
-          user: req.user.userId,
-          tripId: trip._id,
-          type: "flight",
-          sentVia: "none",
-          flightNumber: trip.flightNumber,
-          date: formattedDate,
-        });
-
-        // Update lastCheckedAt for the flight alert
-        if (flightAlerts.length > 0) {
-          await Alert.updateOne(
-            { _id: flightAlerts[0]._id },
-            { lastCheckedAt: new Date() }
-          );
+      // If flight completed (4+ hours ago), create/use simple completed alert
+      if (hoursUntilDeparture < -4) {
+        console.log("Flight completed, skipping API call");
+        
+        if (existingFlightAlert) {
+          allCreatedAlerts.push(existingFlightAlert);
+        } else {
+          const completedAlert = new Alert({
+            user: req.user.userId,
+            trip: trip._id,
+            type: "flight",
+            title: `Flight ${trip.flightNumber} Status: Completed`,
+            message: "Flight has completed",
+            priority: "low",
+            sentVia: "none",
+            lastCheckedAt: new Date(),
+            flightNumber: trip.flightNumber,
+            date: formattedDate
+          });
+          const savedAlert = await completedAlert.save();
+          allCreatedAlerts.push(savedAlert);
+          await Trip.findByIdAndUpdate(trip._id, {
+            $addToSet: { alerts: savedAlert._id },
+          });
         }
+      } else {
+        // Flight is active - check if we need to update status
+        const checkInterval = hoursUntilDeparture <= 24 ? 6 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+        const shouldCheckFlight = !existingFlightAlert || 
+          (Date.now() - new Date(existingFlightAlert.lastCheckedAt || 0).getTime() > checkInterval);
 
-        allCreatedAlerts = allCreatedAlerts.concat(flightAlerts);
+        console.log("Should check flight:", shouldCheckFlight);
+
+        if (shouldCheckFlight) {
+          console.log("Calling flight API...");
+          
+          // Update/create placeholder alert to prevent race conditions
+          let flightAlertToUpdate = existingFlightAlert;
+          
+          if (existingFlightAlert) {
+            await Alert.updateOne({ _id: existingFlightAlert._id }, { lastCheckedAt: new Date() });
+          } else {
+            const placeholderAlert = new Alert({
+              user: req.user.userId,
+              trip: trip._id,
+              type: "flight",
+              title: "Flight Status",
+              description: "Checking flight status...",
+              priority: "medium",
+              sentVia: "none",
+              lastCheckedAt: new Date(),
+              flightNumber: trip.flightNumber,
+              date: formattedDate
+            });
+            flightAlertToUpdate = await placeholderAlert.save();
+            await Trip.findByIdAndUpdate(trip._id, {
+              $addToSet: { alerts: flightAlertToUpdate._id },
+            });
+          }
+
+          try {
+            const flightAlerts = await generateAlert({
+              user: req.user.userId,
+              tripId: trip._id,
+              type: "flight",
+              sentVia: "none",
+              flightNumber: trip.flightNumber,
+              date: formattedDate,
+            });
+
+            console.log("Flight alerts generated:", flightAlerts.length);
+
+            if (flightAlerts.length > 0) {
+              // Replace placeholder with actual flight alerts
+              await Alert.deleteOne({ _id: flightAlertToUpdate._id });
+              await Trip.findByIdAndUpdate(trip._id, {
+                $pull: { alerts: flightAlertToUpdate._id },
+                $addToSet: { alerts: { $each: flightAlerts.map(a => a._id) } }
+              });
+              allCreatedAlerts = allCreatedAlerts.concat(flightAlerts);
+            } else {
+              // No alerts returned, keep placeholder
+              allCreatedAlerts.push(flightAlertToUpdate);
+            }
+          } catch (error) {
+            console.error("Flight API call failed:", error);
+            allCreatedAlerts.push(flightAlertToUpdate);
+          }
+        } else {
+          // Not checking flight, use existing alert
+          console.log("Using existing flight alert");
+          if (existingFlightAlert) {
+            allCreatedAlerts.push(existingFlightAlert);
+          }
+        }
       }
+    } else {
+      console.log("No flight number found for trip");
     }
 
-    // 6. Add new alerts to the trip document
+    // Add new alerts to trip document
     if (allCreatedAlerts.length > 0) {
       const alertIds = allCreatedAlerts.map(alert => alert._id);
       await Trip.findByIdAndUpdate(trip._id, {

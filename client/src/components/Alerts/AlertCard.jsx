@@ -44,10 +44,8 @@ const AlertCard = ({ alert }) => {
           <h3 className="text-lg font-semibold text-gray-800 mb-1">
             {alert.title}
           </h3>
-          <p className="text-sm text-gray-500">
-            {alert.date} - {alert.location}
-          </p>
-          <p className="text-sm text-gray-700 mt-1">{alert.description}</p>
+          
+          <p className="text-sm text-gray-700 mt-1">{alert.message}</p>
         </div>
       </div>
     </div>

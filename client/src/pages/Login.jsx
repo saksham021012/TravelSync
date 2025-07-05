@@ -8,7 +8,8 @@ function Login() {
         <div className='flex flex-col md:flex-row'>
             <LoginForm />
             <div className="hidden md:flex md:w-[45%]">
-                <RightPanel />
+                <RightPanel mode="login" />
+
             </div>
 
         </div>

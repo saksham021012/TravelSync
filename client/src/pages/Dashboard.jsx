@@ -221,9 +221,9 @@ const Dashboard = () => {
       </nav>
 
       {/* Main Content */}
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-8 animate-fade-in-up">
         {/* Header */}
-        <header className="mb-10">
+        <header className="mb-10 ">
           <h1 className="text-3xl font-bold text-gray-900">
             Welcome back, {user?.firstName || "Traveler"}{"!"}
           </h1>

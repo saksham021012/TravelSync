@@ -1,7 +1,8 @@
 
 import React from 'react';
 
-const RightPanel = () => {
+const RightPanel = ({ mode = 'signup' }) => {
+  const isLogin = mode === 'login';
   return (
     <div className="flex-[45%] bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center relative overflow-hidden">
       <div className="absolute inset-0 floating-elements">
@@ -120,9 +121,15 @@ const RightPanel = () => {
       </svg>
 
       <div className="absolute top-[55%] left-1/2 -translate-x-1/2 text-center text-white z-10">
-        <h2 className="text-4xl font-extrabold mb-4 drop-shadow-lg">Start Your Journey</h2>
+        <h2 className="text-4xl font-extrabold mb-6 drop-shadow-lg">
+          {isLogin
+            ? 'Continue Exploring'
+            : 'Start Your Journey'}
+        </h2>
         <p className="text-xl opacity-90 max-w-md mx-auto leading-relaxed">
-          Join thousands of travelers who trust TravelSync for seamless, worry-free adventures around the world.
+          {isLogin
+            ? 'Log in to continue planning, syncing, and experiencing your next adventure with TravelSync.'
+            : 'Join thousands of travelers who trust TravelSync for seamless, worry-free adventures around the world.'}
         </p>
       </div>
     </div>
