@@ -3,6 +3,7 @@ const { getFlightDetails } = require('../utils/flightApi');
 const { generateAlert } = require("../config/generateAlert")
 const User = require('../models/User');
 const Alert = require('../models/Alert');
+const Itinerary = require("../models/Itinerary");
 const mailSender = require('../utils/mailSender');
 const alertSummaryTemplate = require('../mail/templates/alertSummaryTemplate');
 
@@ -381,6 +382,7 @@ exports.deleteTrip = async (req, res) => {
     if (!id) {
       return res.status(400).json({ success: false, message: "Trip ID is required" });
     }
+
     const deletedTrip = await Trip.findOneAndDelete({
       _id: id,
       user: req.user.userId,
@@ -390,8 +392,13 @@ exports.deleteTrip = async (req, res) => {
       return res.status(404).json({ success: false, message: "Trip not found" });
     }
 
-    res.status(200).json({ success: true, message: "Trip deleted" });
+    // Delete related alerts and itinerary
+    await Alert.deleteMany({ tripId: id });
+    await Itinerary.deleteMany({ tripId: id }),
+
+    res.status(200).json({ success: true, message: "Trip and related alerts deleted" });
   } catch (error) {
+    console.error("Error deleting trip and alerts:", error);
     res.status(500).json({ success: false, message: "Could not delete trip" });
   }
 };
