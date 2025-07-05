@@ -27,7 +27,7 @@ function HeroSection() {
                         Your Smart Travel Companion
                     </h1>
                     <p className="text-lg md:text-xl mb-8 opacity-90">
-                        Experience seamless travel with real-time alerts, intelligent automation, and comprehensive travel insights—all in one powerful platform.
+                        Experience seamless travel with real-time alerts, intelligent suggestions, and comprehensive travel insights—all in one powerful platform.
                     </p>
                     <div className="flex flex-col sm:flex-row justify-center gap-4">
                         <a onClick={onClickSYJ} className="inline-block bg-white/20 backdrop-blur-md border-2 border-white/30 text-white px-8 py-4 rounded-[30px] font-semibold cursor-pointer transition-all duration-300 ease-in-out hover:bg-white/30 hover:-translate-y-0.5 hover:shadow-[0_15px_35px_rgba(0,0,0,0.2)]">
