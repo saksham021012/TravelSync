@@ -289,10 +289,13 @@ const Dashboard = () => {
               onClick={() => navigate('/my-trips')}
             />
             <QuickActionButton
-              icon="📋"
-              label="View All Trips"
-              onClick={() => navigate('/my-trips')}
+              icon="🆘"
+              label="Need Help?"
+              onClick={() =>
+                navigate("/my-alerts")
+              }
             />
+
             <QuickActionButton
               icon="📅"
               label="Manage Itinerary"

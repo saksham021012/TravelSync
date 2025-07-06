@@ -81,5 +81,6 @@ export const profileEndpoints = {
 
 // ========== EMERGENCY SERVICES ==========
 export const emergencyEndpoints = {
-  GET_NEARBY_EMERGENCIES_API: BASE_URL + "/emergency/nearby",
+  GET_NEARBY_EMERGENCIES_API: (latitude, longitude) =>
+    `${BASE_URL}/emergency/nearby?latitude=${latitude}&longitude=${longitude}`,
 };
