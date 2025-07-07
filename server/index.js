@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 4000
 //cors
 const allowedOrigins = [
     "http://localhost:5174",               // local dev
-    "https://travel-sync-sepia.vercel.app" // your Vercel frontend
+    "https://travel-sync-mu.vercel.app/" // your Vercel frontend
 ];
 app.use(cors({
     origin: allowedOrigins,
