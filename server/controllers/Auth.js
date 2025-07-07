@@ -101,11 +101,11 @@ exports.register = async (req, res) => {
 
         //find most recent otp stored for user
 
-        const recentOtp = await Otp.find({email}).sort({createdAt: -1}).limit(1);
+        const recentOtp = await Otp.find({ email }).sort({ createdAt: -1 }).limit(1);
         console.log(recentOtp);
 
         //validate otp
-        if(recentOtp.length === 0){
+        if (recentOtp.length === 0) {
             //otp not found 
             return res.status(400).json({
                 success: false,
@@ -137,7 +137,7 @@ exports.register = async (req, res) => {
         await user.save();
 
 
-        
+
 
         return res
             .status(200)
@@ -197,8 +197,10 @@ exports.login = async (req, res) => {
         res.cookie("token", token, {
             httpOnly: true,
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-            sameSite: "strict",
+            sameSite: "None",                // ✅ allow cross-site cookies
+            secure: true                     // ✅ required when SameSite=None
         });
+
 
         res.setHeader("Authorization", `Bearer ${token}`);
 
