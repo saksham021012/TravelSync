@@ -37,6 +37,32 @@
 
 ---
 
+## 📸 Screenshots
+
+### 🏠 Home Page
+![Home Page](https://github.com/user-attachments/assets/05ecf248-236c-4c10-8477-d5f4ca11253c)
+
+### 🔐 Sign Up
+![Sign Up](https://github.com/user-attachments/assets/50abd369-71e9-4c86-a887-11e0dc2d42e9)
+
+### 📊 Dashboard
+![Dashboard](https://github.com/user-attachments/assets/1c4566c5-d61f-40c6-a7d8-dc7e9403a152)
+
+### 🗓️ Itineraries
+![Itineraries](https://github.com/user-attachments/assets/d5d60291-ecbc-4fe7-9919-4d4709e2e86b)
+
+### 🚨 Alerts
+![Alerts](https://github.com/user-attachments/assets/b9222917-4320-48f6-9b49-08762d58fe0b)
+
+### 🆘 Emergency Services
+![Emergency Services - 1](https://github.com/user-attachments/assets/1941d8af-0b04-413d-a563-bba076d82af9)  
+![Emergency Services - 2](https://github.com/user-attachments/assets/dc613bc2-1107-4498-9eaf-54b6cd2efea5)
+
+
+
+
+
+
 ## 🧱 Tech Stack
 
 ### Backend
