@@ -14,7 +14,14 @@ const PORT = process.env.PORT || 4000
 
 
 //cors
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+const allowedOrigins = [
+    "http://localhost:5173",               // local dev
+    "https://travel-sync-seven.vercel.app/" // your Vercel frontend
+];
+app.use(cors({
+    origin: allowedOrigins,
+    credentials: true
+}));
 
 //database connect
 connectDB();
