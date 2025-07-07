@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { AlertTriangle } from "lucide-react";
-import EmergencyModal from "./EmergencyModal"; // Adjust the path as necessary
+import EmergencyModal from "./EmergencyModal";
 
 const alertTypes = [
   { value: "all", label: "All Types" },
@@ -18,11 +18,7 @@ const FilterBar = ({
 }) => {
   const [showModal, setShowModal] = useState(false);
 
-  const handleContinue = (selectedLocationType) => {
-    console.log("Selected location option:", selectedLocationType);
-    setShowModal(false);
-    // You can trigger emergency-related logic here based on `selectedLocationType`
-  };
+  const selectedTrip = trips.find((trip) => trip._id === filteredTripId);
 
   return (
     <>
@@ -75,7 +71,7 @@ const FilterBar = ({
       <EmergencyModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        onContinue={handleContinue}
+         selectedTrip={trips.find((trip) => trip._id === filteredTripId)}
       />
     </>
   );
