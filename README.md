@@ -19,7 +19,7 @@
 
 ### Core Functionality
 - 🔐 **Secure Authentication** – JWT-based auth with email OTP verification
-- 🛫 **Complete Trip Management** – Create, update, delete, and organize trips with multi-destination support
+- 🛫 **Complete Trip Management** – Create, update, delete, and organize trips.
 - 📅 **Smart Itinerary Planning** – Detailed scheduling with timezone-aware timestamps
 - 🌦️ **Weather Intelligence** – Real-time weather alerts based on destination and travel dates
 - ✈️ **Flight Status Monitoring** – Live flight tracking and notifications via AeroDataBox API
