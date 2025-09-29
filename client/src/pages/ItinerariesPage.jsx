@@ -1,3 +1,5 @@
+//TODO: Refactor this file into smaller components for better maintainability
+
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
