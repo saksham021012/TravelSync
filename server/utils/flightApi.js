@@ -25,6 +25,12 @@ const getFlightDetails = async (flightNumber, departureDate) => {
     console.log(`Tier 2 Usage: ${response.headers['x-ratelimit-tier-2-remaining']} / ${response.headers['x-ratelimit-tier-2-limit']} remaining`);
     console.log(`Tier 2 Resets in: ${(response.headers['x-ratelimit-tier-2-reset'] / 3600).toFixed(2)} hours`);
 
+    //full response
+    console.log(
+      "[FLIGHT RAW RESPONSE]",
+      JSON.stringify(response.data, null, 2)
+    );
+
 
     const flight = response.data[0];
     if (!flight) return null;
