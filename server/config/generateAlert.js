@@ -6,134 +6,186 @@ const { getFlightDetails } = require("../utils/flightApi");
 const User = require("../models/User");
 const alertSummaryTemplate = require("../mail/templates/alertSummaryTemplate.js");
 
-const generateAlert = async ({ user, tripId, type, sentVia = 'email', location, flightNumber, title, message, date }) => {
+// Constants
+const MAX_ALERTS_PER_TYPE = 2;
+
+// Helper: Normalize user ID
+function getUserId(user) {
+  return user._id || user;
+}
+
+// Helper: Create default message
+function getDefaultMessage(type, location, flightNumber) {
+  const messages = {
+    weather: `Severe weather expected in ${location || 'the area'}`,
+    news: `Latest news update for ${location || 'your destination'}`,
+    flight: `Flight ${flightNumber} status update`,
+    default: `Alert for your trip to ${location || 'destination'}`
+  };
+  return messages[type] || messages.default;
+}
+
+// Helper: Build alert objects from weather data
+function buildWeatherAlerts(weatherData, location, userId, tripId, sentVia) {
+  if (!weatherData.length) {
+    return [{
+      user: userId,
+      trip: tripId,
+      type: "weather",
+      title: "No severe weather alerts",
+      message: `There are no active weather alerts for ${location}.`,
+      sentVia
+    }];
+  }
+
+  return weatherData.slice(0, MAX_ALERTS_PER_TYPE).map(alert => ({
+    user: userId,
+    trip: tripId,
+    type: "weather",
+    title: alert.headline || alert.event || "Weather Alert",
+    message: alert.desc || `Severe weather expected in ${location}`,
+    sentVia
+  }));
+}
+
+// Helper: Build alert objects from news data
+function buildNewsAlerts(newsData, userId, tripId, sentVia, defaultMessage) {
+  if (!newsData.length) {
+    console.log("No news alerts available");
+    return [];
+  }
+
+  return newsData.slice(0, MAX_ALERTS_PER_TYPE).map(article => ({
+    user: userId,
+    trip: tripId,
+    type: "news",
+    title: article.title,
+    message: article.description || defaultMessage,
+    sentVia
+  }));
+}
+
+// Helper: Build alert object from flight data
+function buildFlightAlert(flightData, flightNumber, date, userId, tripId, sentVia) {
+  if (!flightData?.status) {
+    return null;
+  }
+
+  const status = flightData?.status || 'scheduled';
+
+  return {
+    user: userId,
+    trip: tripId,
+    type: "flight",
+    title: `Flight Status: ${status}`,
+    message: `Flight ${flightNumber} is currently ${flightData.status} on ${date || 'the scheduled date'}`,
+    sentVia,
+    lastCheckedAt: new Date()
+  };
+}
+
+// Helper: Build manual alert object
+function buildManualAlert(title, message, userId, tripId, sentVia) {
+  return {
+    user: userId,
+    trip: tripId,
+    type: "manual",
+    title,
+    message,
+    sentVia
+  };
+}
+
+// Helper: Send email notification
+async function sendEmailNotification(userId, alerts) {
+  if (!alerts.length) return;
+
+  try {
+    const userDoc = await User.findById(userId);
+    if (!userDoc?.email) {
+      console.warn(`No email found for user ${userId}`);
+      return;
+    }
+
+    await mailSender(
+      userDoc.email,
+      "Your TravelSync Trip Alerts",
+      alertSummaryTemplate(alerts)
+    );
+    console.log(`Email sent successfully to ${userDoc.email}`);
+  } catch (error) {
+    console.error(`Failed to send email notification:`, error.message);
+    // Don't throw - email failure shouldn't break alert creation
+  }
+}
+
+// Main function
+const generateAlert = async ({
+  user,
+  tripId,
+  type,
+  sentVia = 'email',
+  location,
+  flightNumber,
+  title,
+  message,
+  date
+}) => {
+  // Validate required fields
   if (!user || !tripId || !type) {
     throw new Error("Missing required fields: user, tripId, or type");
   }
 
-  const createdAlerts = [];
-  const emailAlerts = [];
+  const userId = getUserId(user);
+  const defaultMessage = message || getDefaultMessage(type, location, flightNumber);
 
   try {
-    if (!message) {
-      switch (type) {
-        case 'weather':
-          message = `Severe weather expected in ${location || 'the area'}`;
-          break;
-        case 'news':
-          message = `Latest news update for ${location || 'your destination'}`;
-          break;
-        case 'flight':
-          message = `Flight ${flightNumber} status update`;
-          break;
-        default:
-          message = `Alert for your trip to ${location || 'destination'}`;
+    let alertsToCreate = [];
+
+    // Generate alerts based on type
+    switch (type) {
+      case 'weather': {
+        if (!location) throw new Error("Location is required for weather alerts");
+        const weatherData = await getWeatherDetails(location);
+        alertsToCreate = buildWeatherAlerts(weatherData, location, userId, tripId, sentVia);
+        break;
       }
+
+      case 'news': {
+        if (!location) throw new Error("Location is required for news alerts");
+        const newsData = await getNewsAlerts(location);
+        alertsToCreate = buildNewsAlerts(newsData, userId, tripId, sentVia, defaultMessage);
+        break;
+      }
+
+      case 'flight': {
+        if (!flightNumber) throw new Error("Flight number is required for flight alerts");
+        const flightData = await getFlightDetails(flightNumber, date);
+        const flightAlert = buildFlightAlert(flightData, flightNumber, date, userId, tripId, sentVia);
+        if (flightAlert) alertsToCreate = [flightAlert];
+        break;
+      }
+
+      case 'manual': {
+        if (!title || !message) throw new Error("Manual alerts require title and message");
+        alertsToCreate = [buildManualAlert(title, message, userId, tripId, sentVia)];
+        break;
+      }
+
+      default:
+        throw new Error(`Unknown alert type: ${type}`);
     }
 
-    // Weather alerts
-    if (type === "weather") {
-      if (!location) throw new Error("Location is required for weather alerts");
-
-      const alerts = await getWeatherDetails(location);
-      if (!alerts.length) {
-        const noAlert = await Alert.create({
-          user: user._id || user,
-          trip: tripId,
-          type: "weather",
-          title: "No severe weather alerts",
-          message: `There are no active weather alerts for ${location}.`,
-          sentVia,
-        });
-        createdAlerts.push(noAlert);
-        if (sentVia === 'email') emailAlerts.push(noAlert);
-      }
-
-      // Limit to 2 alerts max
-      for (let i = 0; i < Math.min(2, alerts.length); i++) {
-        const a = alerts[i];
-        const newAlert = await Alert.create({
-          user: user._id || user,
-          trip: tripId,
-          type: "weather",
-          title: a.headline || a.event || "Weather Alert",
-          message: a.desc || message,
-          sentVia,
-        });
-        createdAlerts.push(newAlert);
-        if (sentVia === 'email') emailAlerts.push(newAlert);
-      }
+    // Bulk create alerts if any exist
+    if (!alertsToCreate.length) {
+      return [];
     }
 
-    // News alerts
-    else if (type === 'news') {
-      if (!location) throw new Error("Location is required for news alerts");
+    const createdAlerts = await Alert.insertMany(alertsToCreate);
 
-      const news = await getNewsAlerts(location);
-      if (!news.length) {
-        console.log("No news alerts are available")
-      } else {
-        for (let i = 0; i < Math.min(2, news.length); i++) {
-          const n = news[i];
-          const newAlert = await Alert.create({
-            user: user._id || user,
-            trip: tripId,
-            type: "news",
-            title: n.title,
-            message: n.description || message,
-            sentVia,
-          });
-          createdAlerts.push(newAlert);
-          if (sentVia === 'email') emailAlerts.push(newAlert);
-        }
-      }
-    }
-
-    // Flight alerts
-    else if (type === 'flight') {
-      if (!flightNumber) throw new Error("Flight number is required for flight alerts");
-
-      const flightData = await getFlightDetails(flightNumber, date);
-      if (flightData && flightData.status) {
-        const flightAlert = await Alert.create({
-          user: user._id || user,
-          trip: tripId,
-          type: "flight",
-          title: `Flight Status: ${flightData.status}`,
-          message: `Flight ${flightNumber} is currently ${flightData.status} on ${date || 'the scheduled date'}`,
-          sentVia,
-          lastCheckedAt: new Date(),
-        });
-        createdAlerts.push(flightAlert);
-        if (sentVia === 'email') emailAlerts.push(flightAlert);
-      }
-    }
-
-    // Manual alerts
-    else if (type === 'manual') {
-      if (!title || !message) throw new Error("Manual alerts require title and message");
-
-      const manualAlert = await Alert.create({
-        user: user._id || user,
-        trip: tripId,
-        type,
-        title,
-        message,
-        sentVia,
-      });
-      createdAlerts.push(manualAlert);
-      if (sentVia === 'email') emailAlerts.push(manualAlert);
-    }
-
-    // Send consolidated email if needed
-    if (sentVia === 'email' && emailAlerts.length) {
-      const userDoc = await User.findById(user);
-      try {
-        await mailSender(userDoc.email, "Your TravelSync Trip Alerts", alertSummaryTemplate(emailAlerts));
-        console.log(`Email sent successfully to ${userDoc.email}`);
-      } catch (mailError) {
-        console.error(`Failed to send email to ${userDoc.email}:`, mailError.message);
-      }
+    // Send email notification if requested
+    if (sentVia === 'email') {
+      await sendEmailNotification(userId, createdAlerts);
     }
 
     return createdAlerts;
@@ -144,4 +196,4 @@ const generateAlert = async ({ user, tripId, type, sentVia = 'email', location, 
   }
 };
 
-module.exports = { generateAlert }
+module.exports = { generateAlert };
