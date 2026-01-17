@@ -37,3 +37,5 @@ exports.updateFlightSegment = async (req, res) => {
     res.status(500).json({ message: "Failed to update flight segment" });
   }
 };
+
+//unused for now
