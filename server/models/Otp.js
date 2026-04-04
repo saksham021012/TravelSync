@@ -28,6 +28,9 @@ async function sendVerificationEmail(email, otp) {
 			"Verification Email",
 			emailTemplate(otp)
 		);
+		if (!mailResponse) {
+			throw new Error("mailSender returned null — email could not be sent.");
+		}
 		console.log("Email sent successfully: ", mailResponse.response);
 	} catch (error) {
 		console.log("Error occurred while sending email: ", error);

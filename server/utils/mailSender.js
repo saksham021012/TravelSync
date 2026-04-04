@@ -4,11 +4,15 @@ const mailSender = async (email, title, body) => {
     try {
         let transporter = nodemailer.createTransport({
             host: process.env.MAIL_HOST,
-            port: 465,
-            secure: true,
+            port: 587,         // Use 587 (STARTTLS) — port 465 is blocked on Render
+            secure: false,     // false = STARTTLS upgrade after connection
+            requireTLS: true,  // enforce TLS upgrade
             auth: {
                 user: process.env.MAIL_USER,
                 pass: process.env.MAIL_PASS,
+            },
+            tls: {
+                rejectUnauthorized: false, // avoids cert issues on some hosts
             },
         });
 
